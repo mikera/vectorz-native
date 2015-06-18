@@ -6,6 +6,7 @@ import mikera.indexz.Index;
 import mikera.matrixx.AMatrix;
 import mikera.matrixx.impl.ARectangularMatrix;
 import mikera.vectorz.impl.BufferVector;
+import uncomplicate.neanderthal.CBLAS;
 
 /**
  * A matrix class implemented using a java.nio.DoubleBuffer
@@ -39,7 +40,7 @@ public class BufferMatrix extends ARectangularMatrix {
 		return new BufferMatrix(source,rows,cols);
 	}
 	
-	public static AMatrix create(AMatrix m) {
+	public static BufferMatrix create(AMatrix m) {
 		return wrap(m.toDoubleArray(),m.rowCount(),m.columnCount());
 	}
 
