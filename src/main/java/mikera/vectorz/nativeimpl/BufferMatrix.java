@@ -2,11 +2,11 @@ package mikera.vectorz.nativeimpl;
 
 import java.nio.DoubleBuffer;
 
+import uncomplicate.neanderthal.CBLAS;
 import mikera.indexz.Index;
 import mikera.matrixx.AMatrix;
 import mikera.matrixx.impl.ARectangularMatrix;
 import mikera.vectorz.impl.BufferVector;
-import uncomplicate.neanderthal.CBLAS;
 
 /**
  * A matrix class implemented using a java.nio.DoubleBuffer
@@ -48,6 +48,18 @@ public class BufferMatrix extends ARectangularMatrix {
 	public double get(int i, int j) {
 		checkColumn(j);
 		return buffer.get(i*cols+j);
+	}
+	
+	@Override
+	public void add(AMatrix a) {
+		if (a instanceof BufferMatrix) {
+			add((BufferMatrix)a);
+		}
+	}
+	
+	public void add(BufferMatrix a) {
+		checkSameShape(a);
+		CBLAS.daxpy((int)elementCount(),1.0,a.buffer,1,this.buffer,1);
 	}
 
 	@Override
