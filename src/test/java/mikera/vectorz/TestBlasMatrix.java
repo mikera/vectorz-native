@@ -55,6 +55,8 @@ public class TestBlasMatrix extends TestNative {
 		AMatrix result=m1.innerProduct(m2);
 		assertEquals(Matrix.create(new double[][] {{8,14,20,26},{17,32,47,62}}),result);
 		
+		// test that transposed versions work correctly
+		// using identity A.B = (B^t.A^t)^t
 		assertEquals(result,m2.getTranspose().innerProduct(m1.getTranspose()).getTranspose());
 		
 	}
