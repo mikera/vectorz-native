@@ -3,6 +3,7 @@ package mikera.vectorz.nativeimpl;
 import mikera.vectorz.AVector;
 import mikera.vectorz.impl.AStridedVector;
 import mikera.vectorz.impl.BaseStridedVector;
+import mikera.vectorz.impl.Vector0;
 
 public class BlasVector extends BaseStridedVector {
 
@@ -26,6 +27,14 @@ public class BlasVector extends BaseStridedVector {
 	@Override
 	public int getStride() {
 		return stride;
+	}
+	
+	@Override
+	public AVector subVector(int start, int len) {
+		checkRange(start, len);
+		if (len==0) return Vector0.INSTANCE;
+		if (len==length) return this;
+		return wrapStrided(len,data,index(start),stride);
 	}
 
 	@Override
