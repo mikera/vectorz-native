@@ -7,11 +7,13 @@ import mikera.matrixx.AMatrix;
 import mikera.matrixx.impl.ARectangularMatrix;
 import mikera.matrixx.impl.AStridedMatrix;
 import mikera.matrixx.impl.BaseStridedMatrix;
+import mikera.matrixx.impl.DenseColumnMatrix;
 import mikera.matrixx.impl.StridedMatrix;
 import mikera.vectorz.AVector;
 import mikera.vectorz.Vector;
 import mikera.vectorz.impl.AStridedVector;
 import mikera.vectorz.util.DoubleArrays;
+import mikera.vectorz.util.ErrorMessages;
 
 import static mikera.vectorz.nativeimpl.BlasInstance.*;
 
@@ -108,6 +110,25 @@ public class BlasMatrix extends BaseStridedMatrix {
 			return BlasVector.wrap(dest);
 		} else {
 			return BlasMatrix.create(this).innerProduct(v);
+		}
+	}
+	
+	public BlasMatrix innerProduct(AStridedMatrix a) {
+		// ensure vector is in zero-offset format
+		if (!((a.getArrayOffset()==0)&&(a.rowStride()==1))) a=DenseColumnMatrix.create(a);
+		int m=rows;
+		int n=a.columnCount();
+		int k=cols;
+		if (k!=a.rowCount()) throw new Error(ErrorMessages.incompatibleShapes(this, a));
+		
+		if (this.isPackedArray()) {
+			// row major format
+			double[] dest=new double[m*n];
+			double[] src=a.getArray();
+			blas.dgemm("T","N", m, n, k, 1.0, data, m, src, k, 1.0, dest, m);
+			return BlasMatrix.wrap(dest,m,n);
+		} else {
+			return BlasMatrix.create(this).innerProduct(a);
 		}
 	}
 	
