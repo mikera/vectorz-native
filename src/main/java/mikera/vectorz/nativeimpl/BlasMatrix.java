@@ -87,9 +87,16 @@ public class BlasMatrix extends BaseStridedMatrix {
 		boolean voffset=v.getArrayOffset()==0;
 		if (!voffset) v=Vector.create(v);
 		if (this.isPackedArray()) {
+			// row major format
 			double[] dest=new double[rows];
 			double[] src=v.getArray();
 			blas.dgemv("T", cols, rows, 1.0, data, cols, src, v.getStride(), 0.0, dest, 1);
+			return BlasVector.wrap(dest);
+		} else if ((this.getArrayOffset()==0) && (this.rowStride()==1)) {
+			// column major format
+			double[] dest=new double[rows];
+			double[] src=v.getArray();
+			blas.dgemv("N", rows, cols, 1.0, data, rows, src, v.getStride(), 0.0, dest, 1);		
 			return BlasVector.wrap(dest);
 		} else {
 			return BlasMatrix.create(this).innerProduct(v);

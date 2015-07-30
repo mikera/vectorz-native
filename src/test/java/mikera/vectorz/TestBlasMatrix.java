@@ -39,7 +39,12 @@ public class TestBlasMatrix extends TestNative {
 	@Test public void testInnerProduct() {
 		BlasMatrix m=BlasMatrix.create(Matrix.create(new double[][] {{1,2,3},{4,5,6}}));
 		Vector v=Vector.of(1,2,3);
-		Vector result=m.innerProduct(v);
+		AVector result=m.innerProduct(v);
 		assertEquals(Vector.of(14,32),result);
+		
+		BlasMatrix mt=m.getTranspose();
+		Vector v2=Vector.of(1,2);
+		AVector result2=mt.innerProduct(v2);
+		assertEquals(Vector.of(9,12,15),result2);
 	}
 }
