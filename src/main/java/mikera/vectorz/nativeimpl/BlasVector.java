@@ -13,6 +13,10 @@ public class BlasVector extends BaseStridedVector {
 	public static BlasVector wrap(double[] data) {
 		return new BlasVector(data.length,data,0,1);
 	}
+	
+	public static BlasVector wrapStrided(int length, double[] data, int offset, int stride) {
+		return new BlasVector(length,data,offset,stride);
+	}
 
 	@Override
 	public int getArrayOffset() {
