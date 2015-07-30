@@ -37,7 +37,7 @@ public class TestBlasMatrix extends TestNative {
 		assertEquals(Vector.of(0,3,4,0),Vector.wrap(data));
 	}
 	
-	@Test public void testInnerProduct() {
+	@Test public void testInnerProductMV() {
 		BlasMatrix m=BlasMatrix.create(Matrix.create(new double[][] {{1,2,3},{4,5,6}}));
 		Vector v=Vector.of(1,2,3);
 		AVector result=m.innerProduct(v);
@@ -47,5 +47,15 @@ public class TestBlasMatrix extends TestNative {
 		Vector v2=Vector.of(1,2);
 		AVector result2=mt.innerProduct(v2);
 		assertEquals(Vector.of(9,12,15),result2);
+	}
+	
+	@Test public void testInnerProductMM() {
+		BlasMatrix m1=BlasMatrix.create(Matrix.create(new double[][] {{1,2,3},{4,5,6}}));
+		BlasMatrix m2=BlasMatrix.create(Matrix.create(new double[][] {{0,1,2,3},{1,2,3,4},{2,3,4,5}}));
+		AMatrix result=m1.innerProduct(m2);
+		assertEquals(Matrix.create(new double[][] {{8,14,20,26},{17,32,47,62}}),result);
+		
+		assertEquals(result,m2.getTranspose().innerProduct(m1.getTranspose()).getTranspose());
+		
 	}
 }

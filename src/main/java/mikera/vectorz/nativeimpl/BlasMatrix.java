@@ -48,6 +48,11 @@ public class BlasMatrix extends BaseStridedMatrix {
 		return new BlasMatrix(source,rows,cols,0,cols,1);
 	}
 	
+	public static BlasMatrix wrap(double[] source, int rows, int cols, int offset, int rowStride, int columnStride) {
+		if (source.length!=(rows*cols)) throw new IllegalArgumentException("Wrong array size for matrix of shape "+Index.of(rows,cols));
+		return new BlasMatrix(source,rows,cols,offset,rowStride,columnStride);
+	}
+	
 	public static BlasMatrix create(AMatrix m) {
 		return wrap(m.toDoubleArray(),m.rowCount(),m.columnCount());
 	}
@@ -116,17 +121,24 @@ public class BlasMatrix extends BaseStridedMatrix {
 	public BlasMatrix innerProduct(AStridedMatrix a) {
 		// ensure vector is in zero-offset format
 		if (!((a.getArrayOffset()==0)&&(a.rowStride()==1))) a=DenseColumnMatrix.create(a);
-		int m=rows;
+		if (cols!=a.rowCount()) throw new Error(ErrorMessages.incompatibleShapes(this, a));
 		int n=a.columnCount();
+		int m=rows;
 		int k=cols;
-		if (k!=a.rowCount()) throw new Error(ErrorMessages.incompatibleShapes(this, a));
 		
 		if (this.isPackedArray()) {
 			// row major format
 			double[] dest=new double[m*n];
 			double[] src=a.getArray();
-			blas.dgemm("T","N", m, n, k, 1.0, data, m, src, k, 1.0, dest, m);
-			return BlasMatrix.wrap(dest,m,n);
+			blas.dgemm("T","N", m, n, k, 1.0, data, k, src, k, 0.0, dest, m);
+			return BlasMatrix.wrap(dest,m,n,0,1,rows);
+		} else if ((this.getArrayOffset()==0) && (this.rowStride()==1)) {
+			// column major format
+			// row major format
+			double[] dest=new double[m*n];
+			double[] src=a.getArray();
+			blas.dgemm("N","N", m, n, k, 1.0, data, m, src, k, 0.0, dest, m);
+			return BlasMatrix.wrap(dest,m,n,0,1,rows);
 		} else {
 			return BlasMatrix.create(this).innerProduct(a);
 		}
