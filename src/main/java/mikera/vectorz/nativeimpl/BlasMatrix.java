@@ -6,6 +6,7 @@ import mikera.indexz.Index;
 import mikera.matrixx.AMatrix;
 import mikera.matrixx.impl.ARectangularMatrix;
 import mikera.matrixx.impl.AStridedMatrix;
+import mikera.matrixx.impl.BaseStridedMatrix;
 import mikera.matrixx.impl.StridedMatrix;
 
 import static mikera.vectorz.nativeimpl.BlasInstance.*;
@@ -17,18 +18,11 @@ import static mikera.vectorz.nativeimpl.BlasInstance.*;
  * @author Mike
  *
  */
-public class BlasMatrix extends AStridedMatrix {
-
-	private final int rowStride;
-	private final int colStride;
-	private final int offset;
+public class BlasMatrix extends BaseStridedMatrix {
 
 	private BlasMatrix(double[] data, int rowCount, int columnCount,
 			int offset, int rowStride, int columnStride) {
-		super(data,rowCount,columnCount);
-		this.offset = offset;
-		this.rowStride = rowStride;
-		this.colStride = columnStride;
+		super(data,rowCount,columnCount,offset,rowStride,columnStride);
 	}
 
 	public static BlasMatrix create(int rowCount, int columnCount) {
@@ -61,22 +55,11 @@ public class BlasMatrix extends AStridedMatrix {
 	public BlasVector getColumn(int i) {
 		return BlasVector.wrapStrided(rows, data, index(0,i), rowStride);	
 	}
-
-	@Override
-	public double get(int i, int j) {
-		checkIndex(i,j);
-		return unsafeGet(i,j);
-	}
 	
 	@Override
 	public void set(int i, int j, double value) {
 		checkIndex(i,j);
 		unsafeSet(i,j,value);
-	}
-	
-	@Override
-	public double unsafeGet(int i, int j) {
-		return data[index(i,j)];
 	}
 
 	@Override
@@ -105,21 +88,6 @@ public class BlasMatrix extends AStridedMatrix {
 	}
 
 	@Override
-	public int getArrayOffset() {
-		return offset;
-	}
-
-	@Override
-	public int rowStride() {
-		return rowStride;
-	}
-
-	@Override
-	public int columnStride() {
-		return colStride;
-	}
-
-	@Override
 	public void copyRowTo(int row, double[] dest, int destOffset) {
 		blas.dcopy(cols, data, offset+row*rowStride, colStride, dest, destOffset, 1);
 	}
@@ -127,10 +95,5 @@ public class BlasMatrix extends AStridedMatrix {
 	@Override
 	public void copyColumnTo(int col, double[] dest, int destOffset) {
 		blas.dcopy(rows, data, offset+col*colStride, rowStride, dest, destOffset, 1);
-	}
-
-	@Override
-	protected int index(int i, int j) {
-		return offset+i*rowStride+j*colStride;
 	}
 }
