@@ -11,9 +11,8 @@ import mikera.matrixx.impl.StridedMatrix;
 import static mikera.vectorz.nativeimpl.BlasInstance.*;
 
 /**
- * A matrix class implemented using a java.nio.DoubleBuffer
- * 
- * Intended for use with native libraries that require interop with buffer memory
+ * A matrix class implemented using netlib-java BLAS operations
+ * standard Java operations are still used where these are faster
  * 
  * @author Mike
  *
