@@ -51,6 +51,16 @@ public class BlasMatrix extends AStridedMatrix {
 	public static BlasMatrix create(AMatrix m) {
 		return wrap(m.toDoubleArray(),m.rowCount(),m.columnCount());
 	}
+	
+	@Override
+	public BlasVector getRow(int i) {
+		return BlasVector.wrapStrided(cols, data, index(i,0), colStride);	
+	}
+	
+	@Override
+	public BlasVector getColumn(int i) {
+		return BlasVector.wrapStrided(rows, data, index(0,i), rowStride);	
+	}
 
 	@Override
 	public double get(int i, int j) {
