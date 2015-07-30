@@ -57,6 +57,11 @@ public class BlasMatrix extends BaseStridedMatrix {
 	}
 	
 	@Override
+	public BlasMatrix getTranspose() {
+		return new BlasMatrix(data,cols,rows,offset,colStride,rowStride);
+	}
+	
+	@Override
 	public void set(int i, int j, double value) {
 		checkIndex(i,j);
 		unsafeSet(i,j,value);
