@@ -14,7 +14,14 @@
 		<dependency>
 			<groupId>net.mikera</groupId>
 			<artifactId>vectorz</artifactId>
-			<version>0.47.0</version>
+			<version>0.47.1-SNAPSHOT</version>
+			<scope>test</scope>
+			<type>test-jar</type>
+		</dependency>
+		<dependency>
+			<groupId>net.mikera</groupId>
+			<artifactId>vectorz</artifactId>
+			<version>0.47.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.fommil.netlib</groupId>
