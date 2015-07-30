@@ -77,6 +77,11 @@ public class BlasMatrix extends BaseStridedMatrix {
 		}
 	}
 	
+//	@Override
+//	public double determinant() {
+//		// TODO figure out best way to do this
+//	}
+	
 	@Override
 	public Vector innerProduct(Vector v) {
 		BlasVector result= innerProduct((AStridedVector)v);
