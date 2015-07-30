@@ -5,7 +5,7 @@ import mikera.vectorz.impl.AStridedVector;
 import mikera.vectorz.impl.BaseStridedVector;
 import mikera.vectorz.impl.Vector0;
 
-public class BlasVector extends BaseStridedVector {
+public final class BlasVector extends BaseStridedVector {
 
 	protected BlasVector(int length, double[] data, int offset, int stride) {
 		super(length, data,offset,stride);
