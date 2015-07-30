@@ -1,3 +1,3 @@
 # vectorz-native
 
-Fast native-optimised linear algebra librray for Java
+Fast native-optimised linear algebra libray for Java
