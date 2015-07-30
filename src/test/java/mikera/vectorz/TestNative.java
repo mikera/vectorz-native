@@ -1,7 +1,6 @@
 package mikera.vectorz;
 
 import static org.junit.Assert.*;
-import uncomplicate.neanderthal.CBLAS;
 import mikera.vectorz.nativeimpl.NativeUtil;
 
 import org.junit.Test;
