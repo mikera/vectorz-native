@@ -84,8 +84,10 @@ public class BlasMatrix extends BaseStridedMatrix {
 	}
 	
 	public BlasVector innerProduct(AStridedVector v) {
+		// ensure vector is in zero-offset format
 		boolean voffset=v.getArrayOffset()==0;
 		if (!voffset) v=Vector.create(v);
+		
 		if (this.isPackedArray()) {
 			// row major format
 			double[] dest=new double[rows];
