@@ -3,6 +3,7 @@ package mikera.vectorz;
 import static org.junit.Assert.assertEquals;
 
 import mikera.matrixx.AMatrix;
+import mikera.matrixx.Matrix;
 import mikera.matrixx.Matrix22;
 import mikera.vectorz.nativeimpl.NativeUtil;
 import mikera.vectorz.nativeimpl.BlasMatrix;
@@ -33,5 +34,12 @@ public class TestBlasMatrix extends TestNative {
 		double[] data=new double[4];
 		m.copyRowTo(1, data, 1);
 		assertEquals(Vector.of(0,3,4,0),Vector.wrap(data));
+	}
+	
+	@Test public void testInnerProduct() {
+		BlasMatrix m=BlasMatrix.create(Matrix.create(new double[][] {{1,2,3},{4,5,6}}));
+		Vector v=Vector.of(1,2,3);
+		Vector result=m.innerProduct(v);
+		assertEquals(Vector.of(14,32),result);
 	}
 }

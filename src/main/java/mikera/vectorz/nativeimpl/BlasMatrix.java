@@ -8,6 +8,9 @@ import mikera.matrixx.impl.ARectangularMatrix;
 import mikera.matrixx.impl.AStridedMatrix;
 import mikera.matrixx.impl.BaseStridedMatrix;
 import mikera.matrixx.impl.StridedMatrix;
+import mikera.vectorz.AVector;
+import mikera.vectorz.Vector;
+import mikera.vectorz.impl.AStridedVector;
 
 import static mikera.vectorz.nativeimpl.BlasInstance.*;
 
@@ -46,6 +49,10 @@ public class BlasMatrix extends BaseStridedMatrix {
 		return wrap(m.toDoubleArray(),m.rowCount(),m.columnCount());
 	}
 	
+	public static BlasMatrix wrap(AStridedMatrix m) {
+		return new BlasMatrix(m.getArray(),m.rowCount(),m.columnCount(),m.getArrayOffset(),m.rowStride(),m.columnStride());
+	}
+	
 	@Override
 	public BlasVector getRow(int i) {
 		return BlasVector.wrapStrided(cols, data, index(i,0), colStride);	
@@ -59,6 +66,34 @@ public class BlasMatrix extends BaseStridedMatrix {
 	@Override
 	public BlasMatrix getTranspose() {
 		return new BlasMatrix(data,cols,rows,offset,colStride,rowStride);
+	}
+	
+	@Override
+	public BlasVector innerProduct(AVector v) {
+		if (v instanceof AStridedVector) {
+			return innerProduct((AStridedVector)v);
+		} else {
+			return innerProduct((AStridedVector)Vector.create(v));
+		}
+	}
+	
+	@Override
+	public Vector innerProduct(Vector v) {
+		BlasVector result= innerProduct((AStridedVector)v);
+		return Vector.wrap(result.getArray());
+	}
+	
+	public BlasVector innerProduct(AStridedVector v) {
+		boolean voffset=v.getArrayOffset()==0;
+		if (!voffset) v=Vector.create(v);
+		if (this.isPackedArray()) {
+			double[] dest=new double[rows];
+			double[] src=v.getArray();
+			blas.dgemv("T", cols, rows, 1.0, data, cols, src, v.getStride(), 0.0, dest, 1);
+			return BlasVector.wrap(dest);
+		} else {
+			return BlasMatrix.create(this).innerProduct(v);
+		}
 	}
 	
 	@Override
