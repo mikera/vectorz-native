@@ -11,6 +11,7 @@ import mikera.matrixx.impl.StridedMatrix;
 import mikera.vectorz.AVector;
 import mikera.vectorz.Vector;
 import mikera.vectorz.impl.AStridedVector;
+import mikera.vectorz.util.DoubleArrays;
 
 import static mikera.vectorz.nativeimpl.BlasInstance.*;
 
@@ -138,7 +139,10 @@ public class BlasMatrix extends BaseStridedMatrix {
 
 	@Override
 	public boolean isZero() {
-		return asVector().isZero();
+		for (int i=0; i<rows; i++) {
+			if (!DoubleArrays.isZero(data, index(i,0), cols, colStride)) return false;
+		}
+		return true;
 	}
 
 	@Override

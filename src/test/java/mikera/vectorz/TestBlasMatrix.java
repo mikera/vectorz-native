@@ -7,6 +7,7 @@ import mikera.matrixx.Matrix;
 import mikera.matrixx.Matrix22;
 import mikera.vectorz.nativeimpl.NativeUtil;
 import mikera.vectorz.nativeimpl.BlasMatrix;
+import mikera.vectorz.nativeimpl.BlasVector;
 
 import org.junit.Test;
 
