@@ -40,5 +40,6 @@ public class TestBlasMatrices extends TestNative {
 		
 		BlasMatrix m1=BlasMatrix.wrap(data,4,4);
 		doGenericTests(m1);
+		doGenericTests(m1.getTranspose());
 	}
 }
