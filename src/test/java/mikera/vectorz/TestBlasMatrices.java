@@ -25,9 +25,11 @@ public class TestBlasMatrices extends TestNative {
 		
 		BlasMatrix m1=BlasMatrix.wrap(data,5,6);
 		doGenericTests(m1);
+		doGenericTests(m1.getTranspose());	
 		
 		BlasMatrix m2=BlasMatrix.wrap(data,6,5);
 		doGenericTests(m2);
+		doGenericTests(m2.getTranspose());	
 	}
 	
 	@Test public void g_SquareMatrix() {
