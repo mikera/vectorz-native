@@ -57,6 +57,26 @@ public class BlasMatrix extends BaseStridedMatrix {
 		return wrap(m.toDoubleArray(),m.rowCount(),m.columnCount());
 	}
 	
+	/**
+	 * Wraps data wrom source matrix in a BlasMatrix if possible, otherwise creates a nwew BlasMatrix
+	 * @param m
+	 * @return
+	 */
+	public static BlasMatrix wrapOrCreate(AMatrix m) {
+		if (m instanceof AStridedMatrix) {
+			AStridedMatrix sm=(AStridedMatrix)m;
+			if (sm.getArrayOffset()==0) {
+				if (sm.columnStride()==1) {
+					return new BlasMatrix(sm.getArray(),m.rowCount(),m.columnCount(),0,sm.rowStride(),1);
+				}
+				if (sm.rowStride()==1) {
+					return new BlasMatrix(sm.getArray(),m.rowCount(),m.columnCount(),0,1,sm.columnStride());
+				}
+			}
+		}
+		return create(m);
+	}
+	
 	public static BlasMatrix wrap(AStridedMatrix m) {
 		return new BlasMatrix(m.getArray(),m.rowCount(),m.columnCount(),m.getArrayOffset(),m.rowStride(),m.columnStride());
 	}
@@ -116,6 +136,10 @@ public class BlasMatrix extends BaseStridedMatrix {
 		} else {
 			return BlasMatrix.create(this).innerProduct(v);
 		}
+	}
+	
+	public BlasMatrix innerProduct(AMatrix a) {
+		return innerProduct(wrapOrCreate(a));
 	}
 	
 	public BlasMatrix innerProduct(AStridedMatrix a) {
