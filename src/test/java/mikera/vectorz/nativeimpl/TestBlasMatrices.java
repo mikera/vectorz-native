@@ -1,4 +1,4 @@
-package mikera.vectorz;
+package mikera.vectorz.nativeimpl;
 
 import static org.junit.Assert.assertEquals;
 
