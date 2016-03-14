@@ -1,21 +1,17 @@
 package mikera.vectorz.nativeimpl;
 
-import java.nio.DoubleBuffer;
+import static mikera.vectorz.nativeimpl.BlasInstance.blas;
 
 import mikera.indexz.Index;
 import mikera.matrixx.AMatrix;
-import mikera.matrixx.impl.ARectangularMatrix;
 import mikera.matrixx.impl.AStridedMatrix;
 import mikera.matrixx.impl.BaseStridedMatrix;
 import mikera.matrixx.impl.DenseColumnMatrix;
-import mikera.matrixx.impl.StridedMatrix;
 import mikera.vectorz.AVector;
 import mikera.vectorz.Vector;
 import mikera.vectorz.impl.AStridedVector;
 import mikera.vectorz.util.DoubleArrays;
 import mikera.vectorz.util.ErrorMessages;
-
-import static mikera.vectorz.nativeimpl.BlasInstance.*;
 
 /**
  * A matrix class implemented using netlib-java BLAS operations
@@ -25,6 +21,7 @@ import static mikera.vectorz.nativeimpl.BlasInstance.*;
  *
  */
 public class BlasMatrix extends BaseStridedMatrix {
+	private static final long serialVersionUID = 3922540890838969427L;
 
 	private BlasMatrix(double[] data, int rowCount, int columnCount,
 			int offset, int rowStride, int columnStride) {
@@ -138,6 +135,7 @@ public class BlasMatrix extends BaseStridedMatrix {
 		}
 	}
 	
+	@Override
 	public BlasMatrix innerProduct(AMatrix a) {
 		return innerProduct(wrapOrCreate(a));
 	}

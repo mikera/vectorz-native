@@ -2,16 +2,13 @@ package mikera.vectorz.nativeimpl;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
+
 import mikera.matrixx.AMatrix;
 import mikera.matrixx.Matrix;
 import mikera.matrixx.Matrix22;
-import mikera.vectorz.nativeimpl.NativeUtil;
 import mikera.vectorz.AVector;
 import mikera.vectorz.Vector;
-import mikera.vectorz.nativeimpl.BlasMatrix;
-import mikera.vectorz.nativeimpl.BlasVector;
-
-import org.junit.Test;
 
 public class TestBlasMatrix extends TestNative {
 

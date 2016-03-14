@@ -1,11 +1,11 @@
 package mikera.vectorz.nativeimpl;
 
 import mikera.vectorz.AVector;
-import mikera.vectorz.impl.AStridedVector;
 import mikera.vectorz.impl.BaseStridedVector;
 import mikera.vectorz.impl.Vector0;
 
 public final class BlasVector extends BaseStridedVector {
+	private static final long serialVersionUID = -7571795169659166258L;
 
 	protected BlasVector(int length, double[] data, int offset, int stride) {
 		super(length, data,offset,stride);

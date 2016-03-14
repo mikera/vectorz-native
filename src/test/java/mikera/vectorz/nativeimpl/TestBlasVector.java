@@ -1,11 +1,8 @@
 package mikera.vectorz.nativeimpl;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import mikera.vectorz.AVector;
-import mikera.vectorz.nativeimpl.BlasVector;
-
-import org.junit.Test;
 
 public class TestBlasVector {
 	
