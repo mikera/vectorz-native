@@ -7,6 +7,8 @@ import mikera.matrixx.AMatrix;
 import mikera.matrixx.impl.ARectangularMatrix;
 
 public class CudaMatrix extends ARectangularMatrix {
+	private static final long serialVersionUID = 7746497731642370173L;
+
 	Pointer data;
 	
 	protected CudaMatrix(int rows, int cols) {
