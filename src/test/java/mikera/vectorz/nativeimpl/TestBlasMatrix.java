@@ -15,7 +15,7 @@ public class TestBlasMatrix extends TestNative {
 	@Test public void testAdd() {
 		BlasMatrix m=BlasMatrix.create(Matrix22.create(1, 2, 3, 4));
 		
-		BlasMatrix m2=m.clone();
+		AMatrix m2=m.clone();
 		
 		m2.add(m);
 		

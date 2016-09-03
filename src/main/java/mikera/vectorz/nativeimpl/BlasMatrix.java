@@ -181,11 +181,6 @@ public class BlasMatrix extends BaseStridedMatrix {
 	public boolean isFullyMutable() {
 		return true;
 	}
-	
-	@Override
-	public BlasMatrix clone() {
-		return exactClone();
-	}
 
 	@Override
 	public BlasMatrix exactClone() {
