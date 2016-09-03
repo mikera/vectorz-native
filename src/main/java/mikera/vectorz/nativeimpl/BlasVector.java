@@ -41,7 +41,7 @@ public final class BlasVector extends BaseStridedVector {
 
 	@Override
 	public void setElements(double[] values, int offset) {
-		set(Vectorz.wrap(values, offset, length));
+		Vectorz.wrap(values, offset, length).copyTo(0, data, this.offset, length, this.stride);
 	}
 
 	@Override
@@ -56,13 +56,12 @@ public final class BlasVector extends BaseStridedVector {
 
 	@Override
 	public void applyOp(Op op) {
-		// TODO Auto-generated method stub
-		
+		op.applyTo(data, offset,stride,length);
 	}
 
 	@Override
 	public void set(int i, double value) {
-		// TODO Auto-generated method stub
-		
+		checkIndex(i);
+		data[index(i)]=value;
 	}
 }
