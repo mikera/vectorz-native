@@ -15,6 +15,8 @@ import mikera.vectorz.util.ErrorMessages;
 
 /**
  * A matrix class implemented using netlib-java BLAS operations
+ * uses a standard strided Java array for backing.
+ * 
  * standard Java operations are still used where these are faster
  * 
  * @author Mike
