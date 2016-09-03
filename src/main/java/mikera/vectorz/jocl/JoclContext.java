@@ -2,6 +2,7 @@ package mikera.vectorz.jocl;
 import static org.jocl.CL.*;
 import org.jocl.*;
 
+@SuppressWarnings("deprecation")
 public class JoclContext {
 	static cl_context context;
     static cl_command_queue commandQueue;

@@ -23,12 +23,21 @@ public class JoclMatrix extends ARectangularMatrix {
 	protected JoclMatrix(int rows, int cols) {
 		super(rows, cols);
 		int n=Tools.toInt(rows*cols);
-		data=clCreateBuffer(JoclContext.context,CL_MEM_READ_WRITE,n*Sizeof.cl_float, null, null);
+		data=clCreateBuffer(JoclContext.context,CL_MEM_READ_WRITE,n*Sizeof.cl_double, null, null);
 		buffer=DoubleBuffer.allocate(n);
+	}
+	
+	protected JoclMatrix(int rows, int cols, cl_mem src) {
+		super(rows, cols);
+		int n=Tools.toInt(rows*cols);
+		data=clCreateBuffer(JoclContext.context,CL_MEM_READ_WRITE,n*Sizeof.cl_double, null, null);
+		buffer=DoubleBuffer.allocate(n);
+		CL.clEnqueueCopyBuffer(JoclContext.commandQueue,src,data,0,0,n*Sizeof.cl_double,0,null,null);
 	}
 
 	@Override
 	public double get(int row, int column) {
+		checkIndex(row,column);
 		int offset=column+rows*row;
 		Pointer dst=Pointer.to(buffer).withByteOffset(offset*Sizeof.cl_double);
 		CL.clEnqueueReadBuffer(JoclContext.commandQueue, data, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
@@ -37,6 +46,7 @@ public class JoclMatrix extends ARectangularMatrix {
 
 	@Override
 	public void set(int row, int column, double value) {
+		checkIndex(row,column);
 		int offset=column+rows*row;
 		buffer.put(offset, value);
 		Pointer dst=Pointer.to(buffer).withByteOffset(offset*Sizeof.cl_double);
@@ -50,8 +60,7 @@ public class JoclMatrix extends ARectangularMatrix {
 
 	@Override
 	public AMatrix exactClone() {
-		// TODO Auto-generated method stub
-		return null;
+		return new JoclMatrix(rows,cols,data);
 	}
 	
 	@Override
