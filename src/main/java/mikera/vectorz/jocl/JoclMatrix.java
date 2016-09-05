@@ -14,7 +14,13 @@ import mikera.vectorz.Tools;
 
 @SuppressWarnings("serial")
 public class JoclMatrix extends ARectangularMatrix {
-	private final DeviceMem data;
+	private final DeviceVector data;
+	
+	protected JoclMatrix(int rows, int cols, DeviceVector src) {
+		super(rows, cols);
+		if (rows*cols!=src.length()) throw new Error("Invalid size of DeviceVector: "+src.length());
+		data=src;
+	}
 
 	public static JoclMatrix newMatrix(int rows, int cols) {
 		return new JoclMatrix(rows,cols);
@@ -60,6 +66,17 @@ public class JoclMatrix extends ARectangularMatrix {
 		result.setElements(source);
 		return result;
 	}
+	
+	/**
+	 * Creates a new JoclMatrix by copying the contents of the source DeviceVector
+	 * @param rowCount
+	 * @param columnCount
+	 * @param source
+	 * @return
+	 */
+	public static JoclMatrix create(int rowCount, int columnCount, DeviceVector source) {
+		return new JoclMatrix(rowCount,columnCount, DeviceVector.create(source));
+	}
 
 	public static JoclMatrix create(JoclMatrix a) {
 		JoclMatrix result= new JoclMatrix(a.rows,a.cols,a.data);
@@ -70,15 +87,9 @@ public class JoclMatrix extends ARectangularMatrix {
 	protected JoclMatrix(int rows, int cols) {
 		super(rows, cols);
 		int n=Tools.toInt(rows*cols);
-		data=new DeviceMem(n);
-		fill(0.0);
+		data=DeviceVector.createLength(n);
 	}
-	
-	protected JoclMatrix(int rows, int cols, DeviceMem src) {
-		this(rows, cols);
-		int n=Tools.toInt(rows*cols);
-		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,data.mem,0,0,n*Sizeof.cl_double,0,null,null);
-	}
+
 	
 	@Override
 	public void fill(double value) {
@@ -155,6 +166,6 @@ public class JoclMatrix extends ARectangularMatrix {
 
 	@Override
 	public AMatrix exactClone() {
-		return new JoclMatrix(rows,cols,data);
+		return JoclMatrix.create(rows,cols,data);
 	}
 }

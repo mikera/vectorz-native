@@ -13,7 +13,7 @@ import mikera.vectorz.util.DoubleArrays;
 
 @SuppressWarnings("serial")
 public class JoclVector extends ASizedVector {
-	private final DeviceMem data;
+	private final DeviceVector data;
 	private final int offset;
 
 	public static JoclVector newVector(int length) {
@@ -23,17 +23,16 @@ public class JoclVector extends ASizedVector {
 	protected JoclVector(int length) {
 		super(length);
 		offset=0;
-		data=new DeviceMem(length);
-		data.fill(0.0);
+		data=DeviceVector.createLength(length);
 	}
 	
-	public JoclVector(DeviceMem data, int offset, int length) {
+	public JoclVector(DeviceVector data, int offset, int length) {
 		super(length);
 		this.data=data;
 		this.offset=offset;
 	}
 
-	public static JoclVector wrap(DeviceMem data, int offset, int length) {
+	public static JoclVector wrap(DeviceVector data, int offset, int length) {
 		return new JoclVector(data,offset,length);
 	}
 	
