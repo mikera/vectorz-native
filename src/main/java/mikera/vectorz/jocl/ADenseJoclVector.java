@@ -17,5 +17,12 @@ public abstract class ADenseJoclVector extends ASizedVector {
 	public abstract JoclVector getData();
 	
 	public abstract int getDataOffset();
-
+	
+	public JoclSubVector asJoclSubVector() {
+		if (this instanceof JoclSubVector) {
+			return (JoclSubVector)this;
+		} else {
+			return JoclSubVector.wrap(getData(), getDataOffset(), length);
+		}
+	}
 }
