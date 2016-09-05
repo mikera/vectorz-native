@@ -105,6 +105,12 @@ public class JoclMatrix extends ARectangularMatrix {
 	}
 	
 	@Override
+	public JoclVector getRow(int i) {
+		return getRowView(i);
+	}
+
+	
+	@Override
 	public JoclVector getRowView(int i) {
 		checkRow(i);
 		return JoclVector.wrap(data,i*cols,cols);
@@ -135,6 +141,11 @@ public class JoclMatrix extends ARectangularMatrix {
 	@Override
 	public void setElements(double[] source, int offset) {
 		data.setElements(source, offset);
+	}
+	
+	@Override
+	public void getElements(double[] dest, int offset) {
+		data.getElements(0,dest, offset,rows*cols);
 	}
 
 	@Override

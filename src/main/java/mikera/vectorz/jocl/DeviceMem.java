@@ -42,6 +42,13 @@ public class DeviceMem {
 		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, 0, length*Sizeof.cl_double, src, 0, null, null);		
 	}
 	
+	public void getElements(int srcOffset,double[] dest, int destOffset, int length) {
+		if (length+destOffset>dest.length) throw new IllegalArgumentException("Insufficient elements in dest: "+dest.length);
+		Pointer dst=Pointer.to(dest).withByteOffset(destOffset*Sizeof.cl_double);
+		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), mem, CL_TRUE, srcOffset*Sizeof.cl_double, length*Sizeof.cl_double, dst, 0, null, null);
+	}
+
+	
 	public void fill(double value) {
 		double[] pattern=new double[]{value};
 		long n=length;
