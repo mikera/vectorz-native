@@ -3,7 +3,9 @@ package mikera.vectorz.jocl;
 import static org.jocl.CL.CL_MEM_READ_WRITE;
 import static org.jocl.CL.CL_TRUE;
 import static org.jocl.CL.clCreateBuffer;
+import static org.jocl.CL.clEnqueueNDRangeKernel;
 import static org.jocl.CL.clReleaseMemObject;
+import static org.jocl.CL.clSetKernelArg;
 
 import org.jocl.CL;
 import org.jocl.Pointer;
@@ -12,6 +14,7 @@ import org.jocl.cl_mem;
 
 import mikera.vectorz.AVector;
 import mikera.vectorz.impl.ASizedVector;
+import mikera.vectorz.impl.Vector0;
 
 /**
  * Class to wrap OpenCL device memory. Automatically frees memory object on finalise.
@@ -29,11 +32,22 @@ public class DeviceVector extends ASizedVector {
 		this.mem=mem;
 	}
 
-	private DeviceVector(int n) {
-		super(n);
-		mem=clCreateBuffer(JoclContext.getInstance().context,CL_MEM_READ_WRITE,n*Sizeof.cl_double, null, null);
-		fill(0.0);
+	/**
+	 * Creates a device vector of the given length 
+	 * IMPRTANT NOTE: memory remains uninitialised
+	 * @param length
+	 */
+	private DeviceVector(int length) {
+		super(length);
+		mem=clCreateBuffer(JoclContext.getInstance().context,CL_MEM_READ_WRITE,length*Sizeof.cl_double, null, null);
 	}
+	
+	private DeviceVector(double[] data, int offset, int length) {
+		super(length);
+		mem=clCreateBuffer(JoclContext.getInstance().context,CL_MEM_READ_WRITE,length*Sizeof.cl_double, null, null);
+		setElements(data,offset);
+	}
+
 
 	@Override
 	public void finalize() throws Throwable {
@@ -42,7 +56,21 @@ public class DeviceVector extends ASizedVector {
 	}
 	
 	public static DeviceVector createLength(int length) {
-		return new DeviceVector(length);
+		DeviceVector v= new DeviceVector(length);
+		v.fill(0.0);
+		return v;
+	}
+	
+	public static DeviceVector create(AVector src) {
+		if (src instanceof DeviceVector) return create((DeviceVector)src);
+		int length=src.length();
+		double[] srcArray=src.asDoubleArray();
+		if (srcArray==null) srcArray=src.asDoubleArray();
+		return new DeviceVector(srcArray,0,length);
+	}
+	
+	public static DeviceVector create(double[] data, int offset, int length) {
+		return new DeviceVector(data,offset,length);
 	}
 	
 	public static DeviceVector create(DeviceVector src) {
@@ -72,10 +100,11 @@ public class DeviceVector extends ASizedVector {
 
 	@Override
 	public void fill(double value) {
-		fill(0,length,value);
+		fillRange(0,length,value);
 	}
 	
-	public void fill(int offset, int length, double value) {
+	@Override
+	public void fillRange(int offset, int length, double value) {
 		double[] pattern=new double[]{value};
 		long n=length;
 		CL.clEnqueueFillBuffer(JoclContext.commandQueue(), mem, Pointer.to(pattern), Sizeof.cl_double, offset*Sizeof.cl_double, n*Sizeof.cl_double, 0,null,null);
@@ -108,18 +137,43 @@ public class DeviceVector extends ASizedVector {
 		checkIndex(i);
 		unsafeSet(i,value);
 	}
+	
+	@Override
+	public void add(AVector a) {
+		if (a instanceof DeviceVector) {
+			add((DeviceVector) a);
+		} else {
+			add(DeviceVector.create(a));
+		}	
+	}
+	
+	public void add(DeviceVector a) {
+		checkSameLength(a);
+		Kernel kernel=Kernels.getKernel("add");
+		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(mem));
+		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.mem));
+		
+		long global_work_size[] = new long[]{length()};
+        
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);
+	}
 
 	@Override
 	public double dotProduct(double[] data, int offset) {
 		return toVector().dotProduct(data,offset);
+	}
+	
+	@Override
+	public AVector subVector(int offset, int length) {
+		checkRange(offset,length);
+		if (length==0) return Vector0.INSTANCE;
+		if (length==this.length) return this;
+		return JoclVector.wrap(this, offset, length);
 	}
 
 	@Override
 	public AVector exactClone() {
 		return create(this);
 	}
-
-
-
-
 }

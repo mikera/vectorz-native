@@ -150,6 +150,11 @@ public class JoclMatrix extends ARectangularMatrix {
 	}
 	
 	@Override
+	public DeviceVector asVector() {
+		return data;
+	}
+	
+	@Override
 	public void setElements(double[] source, int offset) {
 		data.setElements(source, offset);
 	}

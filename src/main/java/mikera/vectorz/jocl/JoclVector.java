@@ -44,9 +44,7 @@ public class JoclVector extends ASizedVector {
 	}
 	
 	public static JoclVector create(double[] srcArray, int offset, int length) {
-		JoclVector v=new JoclVector(length);
-		v.data.setElements(0, srcArray, offset,length);
-		return v;
+		return wrap(DeviceVector.create(srcArray,offset,length),0,length);
 	}
 
 	public static JoclVector create(JoclVector src) {
