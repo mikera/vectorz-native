@@ -7,9 +7,6 @@ import java.nio.file.Paths;
 public class Kernels {
 	private static final Program program;
 	
-	static final Kernel addCopy=getKernel("addCopy");
-	static final Kernel add=getKernel("add");
-	
 	public static String loadString(String filePath) {
 		try {
 			Path path=Paths.get(System.class.getResource(filePath).toURI());
@@ -19,7 +16,7 @@ public class Kernels {
 		} 
 	}
 	
-	private static Kernel getKernel(String kernelName) {
+	public static Kernel getKernel(String kernelName) {
 		return new Kernel(program,kernelName);
 	}
 

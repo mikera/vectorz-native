@@ -4,10 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import mikera.matrixx.Matrix22;
+
 public class TestJoclMatrix  {
 
 	@Test public void testGetSet() {
-		JoclMatrix m=JoclMatrix.newMatrix(2,2);
+		JoclMatrix m=JoclMatrix.create(new Matrix22(1,2,3,4));
+		
+		assertEquals(4.0,m.get(1,1),0.0);
 		
 		m.set(0,1,2.0);
 		assertEquals(2.0,m.get(0,1),0.0);

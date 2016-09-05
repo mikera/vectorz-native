@@ -18,6 +18,35 @@ public class JoclMatrix extends ARectangularMatrix {
 		return new JoclMatrix(rows,cols);
 	}
 	
+	public static JoclMatrix create(AMatrix a) {
+		if (a instanceof JoclMatrix) {
+			return create((JoclMatrix)a);
+		} else {
+			double[] srcArray=a.asDoubleArray();
+			if (srcArray==null) srcArray=a.toDoubleArray();
+			return create(a.rowCount(),a.columnCount(),srcArray);
+		}
+	}
+	
+	/**
+	 * Creates a new JoclMatrix by copying the contents of the source double array
+	 * @param rowCount
+	 * @param columnCount
+	 * @param source
+	 * @return
+	 */
+	public static JoclMatrix create(int rowCount, int columnCount, double[] source) {
+		JoclMatrix result=new JoclMatrix(rowCount,columnCount);
+		result.setElements(source);
+		return result;
+	}
+
+	public static JoclMatrix create(JoclMatrix a) {
+		JoclMatrix result= new JoclMatrix(a.rows,a.cols,a.data);
+		return result;
+	}
+
+	
 	protected JoclMatrix(int rows, int cols) {
 		super(rows, cols);
 		int n=Tools.toInt(rows*cols);
@@ -39,6 +68,14 @@ public class JoclMatrix extends ARectangularMatrix {
 		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
 		return result[0];
 	}
+	
+	@Override
+	public void add(AMatrix a) {
+		if (a instanceof JoclMatrix) {
+			
+		}
+		
+	}
 
 	@Override
 	public void set(int row, int column, double value) {
@@ -48,6 +85,13 @@ public class JoclMatrix extends ARectangularMatrix {
 		buff[0]=value;
 		Pointer src=Pointer.to(buff);
 		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
+	}
+	
+	@Override
+	public void setElements(double[] source, int offset) {
+		Pointer src=Pointer.to(source).withByteOffset(offset*Sizeof.cl_double);
+		int ec=(int)elementCount();
+		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, 0, ec*Sizeof.cl_double, src, 0, null, null);		
 	}
 
 	@Override
