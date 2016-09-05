@@ -6,7 +6,9 @@ import org.jocl.CL;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 
+import mikera.arrayz.INDArray;
 import mikera.matrixx.AMatrix;
+import mikera.matrixx.Matrix;
 import mikera.matrixx.impl.ARectangularMatrix;
 import mikera.vectorz.Tools;
 
@@ -30,6 +32,19 @@ public class JoclMatrix extends ARectangularMatrix {
 			double[] srcArray=a.asDoubleArray();
 			if (srcArray==null) srcArray=a.toDoubleArray();
 			return create(a.rowCount(),a.columnCount(),srcArray);
+		}
+	}
+	
+	/**
+	 * Create a JoclMatrix as a copy of the given source array
+	 * @param a
+	 * @return
+	 */
+	public static JoclMatrix create(INDArray a) {
+		if (a instanceof AMatrix) {
+			return create((AMatrix)a);
+		} else {
+			return create(Matrix.create(a));
 		}
 	}
 	
@@ -88,8 +103,11 @@ public class JoclMatrix extends ARectangularMatrix {
 		Kernel kernel=Kernels.getKernel("add");
 		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(data.mem));
 		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.data.mem));
+		
+		long global_work_size[] = new long[]{elementCount()};
+        
 		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
-	            new long[]{elementCount()}, new long[]{1}, 0, null, null);
+				global_work_size, null, 0, null, null);
 	}
 
 	@Override
