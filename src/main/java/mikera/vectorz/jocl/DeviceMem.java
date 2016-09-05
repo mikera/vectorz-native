@@ -1,7 +1,10 @@
 package mikera.vectorz.jocl;
 
+import static org.jocl.CL.CL_MEM_READ_WRITE;
+import static org.jocl.CL.clCreateBuffer;
 import static org.jocl.CL.clReleaseMemObject;
 
+import org.jocl.Sizeof;
 import org.jocl.cl_mem;
 
 /**
@@ -11,11 +14,19 @@ import org.jocl.cl_mem;
  *
  */
 public class DeviceMem {
-	public cl_mem data;
+	public final cl_mem mem;
 	
+	public DeviceMem(cl_mem mem) {
+		this.mem=mem;
+	}
+
+	public DeviceMem(int n) {
+		mem=clCreateBuffer(JoclContext.context,CL_MEM_READ_WRITE,n*Sizeof.cl_double, null, null);
+	}
+
 	@Override
 	public void finalize() throws Throwable {
-		clReleaseMemObject(data);
+		clReleaseMemObject(mem);
 		super.finalize();
 	}
 }
