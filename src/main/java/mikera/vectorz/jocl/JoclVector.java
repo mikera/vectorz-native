@@ -12,6 +12,7 @@ import mikera.vectorz.util.DoubleArrays;
 @SuppressWarnings("serial")
 public class JoclVector extends ASizedVector {
 	private final DeviceMem data;
+	private final int offset;
 
 	public static JoclVector newVector(int length) {
 		return new JoclVector(length);
@@ -20,11 +21,12 @@ public class JoclVector extends ASizedVector {
 	protected JoclVector(int length) {
 		super(length);
 		data=new DeviceMem(length);
+		offset=0;
 	}
 	
 	protected JoclVector(int length, DeviceMem src) {
 		this(length);
-		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,data.mem,0,0,length*Sizeof.cl_double,0,null,null);
+		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,data.mem,0,offset*Sizeof.cl_double,length*Sizeof.cl_double,0,null,null);
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class JoclVector extends ASizedVector {
 		checkIndex(i);
 		double[] result=new double[1];
 		Pointer dst=Pointer.to(result);
-		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, i*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
+		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, (offset+i)*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
 		return result[0];
 	}
 
@@ -42,7 +44,7 @@ public class JoclVector extends ASizedVector {
 		double[] buff=new double[1];
 		buff[0]=value;
 		Pointer src=Pointer.to(buff);
-		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, i*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
+		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, (offset+i)*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
 	}
 
 	@Override
