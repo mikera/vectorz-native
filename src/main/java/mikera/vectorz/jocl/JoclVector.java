@@ -162,24 +162,56 @@ public class JoclVector extends ADenseJoclVector {
 	
 	@Override
 	public void add(AVector a) {
-		if (a instanceof JoclVector) {
-			add((JoclVector) a);
+		checkSameLength(a);
+		if (a instanceof ADenseJoclVector) {
+			add(0,(ADenseJoclVector) a,0,length);
 		} else {
-			checkSameLength(a);
-			add(0,a,0,length);
+			add(0,JoclVector.create(a),0,length);
 		}	
 	}
 	
-	public void add(JoclVector a) {
-		checkSameLength(a);
+	public void add(int offset, ADenseJoclVector src,int srcOffset, int length) {
+		checkRange(srcOffset,length);
 		Kernel kernel=Kernels.getKernel("add");
-		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(mem)); // target
-		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.mem)); // source
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer(offset)); // target
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_mem, src.pointer(srcOffset)); // source
 		
-		long global_work_size[] = new long[]{length()};
+		long global_work_size[] = new long[]{length};
         
 		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
 				global_work_size, null, 0, null, null);
+	}
+	
+	@Override
+	public void multiply(AVector a) {
+		checkSameLength(a);
+		if (a instanceof ADenseJoclVector) {
+			multiply(0,(ADenseJoclVector) a,0,length);
+		} else {
+			multiply(0,JoclVector.create(a),0,length);
+		}	
+	}
+	
+	public void multiply(int offset, ADenseJoclVector src,int srcOffset, int length) {
+		checkRange(srcOffset,length);
+		Kernel kernel=Kernels.getKernel("mul");
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer(offset)); // target
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_mem, src.pointer(srcOffset)); // source
+		
+		long global_work_size[] = new long[]{length};
+        
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);
+	}
+
+	@Override
+	public Pointer pointer() {
+		return Pointer.to(mem);
+	}
+	
+	@Override
+	public Pointer pointer(int offset) {
+		return Pointer.to(mem).withByteOffset(offset*Sizeof.cl_double);
 	}
 
 	@Override

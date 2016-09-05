@@ -1,5 +1,7 @@
 package mikera.vectorz.jocl;
 
+import org.jocl.Pointer;
+
 import mikera.vectorz.impl.ASizedVector;
 
 /**
@@ -24,5 +26,13 @@ public abstract class ADenseJoclVector extends ASizedVector {
 		} else {
 			return JoclSubVector.wrap(getData(), getDataOffset(), length);
 		}
+	}
+
+	public Pointer pointer() {
+		return getData().pointer(getDataOffset());
+	}
+	
+	public Pointer pointer(int offset) {
+		return getData().pointer(getDataOffset()+offset);
 	}
 }

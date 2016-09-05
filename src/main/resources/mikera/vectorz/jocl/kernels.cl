@@ -11,3 +11,17 @@ add(__global double *a, __global const double *b)
 	int gid = get_global_id(0);
 	a[gid] += b[gid];
 }
+
+__kernel void 
+mul(__global double *a, __global const double *b)
+{
+	int gid = get_global_id(0);
+	a[gid] *= b[gid];
+}
+
+__kernel void 
+scale(__global double *a, __global const double *b)
+{
+	int gid = get_global_id(0);
+	a[gid] *= b[0];
+}
