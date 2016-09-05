@@ -1,86 +1,180 @@
 package mikera.vectorz.jocl;
 
+import static org.jocl.CL.CL_MEM_READ_WRITE;
+import static org.jocl.CL.CL_TRUE;
+import static org.jocl.CL.clCreateBuffer;
+import static org.jocl.CL.clEnqueueNDRangeKernel;
+import static org.jocl.CL.clReleaseMemObject;
+import static org.jocl.CL.clSetKernelArg;
+
+import org.jocl.CL;
+import org.jocl.Pointer;
+import org.jocl.Sizeof;
+import org.jocl.cl_mem;
+
 import mikera.vectorz.AVector;
 import mikera.vectorz.impl.ASizedVector;
 import mikera.vectorz.impl.Vector0;
-import mikera.vectorz.util.DoubleArrays;
 
-@SuppressWarnings("serial")
+/**
+ * Class to wrap OpenCL device memory as Vectorz vector.
+ * Other vectorz-opencl classes should use this for underlying storage 
+ * 
+ * Automatically frees memory object on finalise.
+ * 
+ * @author Mike
+ *
+ */
 public class JoclVector extends ASizedVector {
-	private final DeviceVector data;
-	private final int offset;
+	private static final long serialVersionUID = -5687987534975036854L;
 
-	public static JoclVector newVector(int length) {
-		return new JoclVector(length);
-	}
+	private final cl_mem mem;
 	
+	private JoclVector(cl_mem mem,int length) {
+		super(length);
+		this.mem=mem;
+	}
+
+	/**
+	 * Creates a device vector of the given length 
+	 * IMPRTANT NOTE: memory remains uninitialised
+	 * @param length
+	 */
 	private JoclVector(int length) {
 		super(length);
-		offset=0;
-		data=DeviceVector.createLength(length);
+		mem=clCreateBuffer(JoclContext.getInstance().context,CL_MEM_READ_WRITE,length*Sizeof.cl_double, null, null);
 	}
 	
-	private JoclVector(DeviceVector data, int offset, int length) {
+	private JoclVector(double[] data, int offset, int length) {
 		super(length);
-		this.data=data;
-		this.offset=offset;
+		mem=clCreateBuffer(JoclContext.getInstance().context,CL_MEM_READ_WRITE,length*Sizeof.cl_double, null, null);
+		setElements(data,offset);
 	}
 
-	public static JoclVector wrap(DeviceVector data, int offset, int length) {
-		return new JoclVector(data,offset,length);
+
+	@Override
+	public void finalize() throws Throwable {
+		clReleaseMemObject(mem);
+		super.finalize();
+	}
+	
+	public static JoclVector createLength(int length) {
+		JoclVector v= new JoclVector(length);
+		v.fill(0.0);
+		return v;
 	}
 	
 	public static JoclVector create(AVector src) {
 		if (src instanceof JoclVector) return create((JoclVector)src);
+		int length=src.length();
 		double[] srcArray=src.asDoubleArray();
-		if (srcArray==null) srcArray=src.asDoubleArray();
-		return create(srcArray,0,srcArray.length);
+		if (srcArray==null) srcArray=src.toDoubleArray();
+		return new JoclVector(srcArray,0,length);
 	}
 	
-	public static JoclVector create(double[] srcArray, int offset, int length) {
-		return wrap(DeviceVector.create(srcArray,offset,length),0,length);
+	public static JoclVector create(double[] data, int offset, int length) {
+		return new JoclVector(data,offset,length);
+	}
+	
+	public static JoclVector create(JoclVector src) {
+		return create(src,0,src.length());
 	}
 
-	public static JoclVector create(JoclVector src) {
-		return src.exactClone();
+	public static JoclVector create(JoclVector src, int offset, int length) {
+		src.checkRange(offset, length);
+		JoclVector v=new JoclVector(length);
+		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,v.mem,offset*Sizeof.cl_double,0,length*Sizeof.cl_double,0,null,null);
+		return v;
 	}
 	
 	@Override
-	public void add(AVector a) {
-		checkSameLength(a);
-		data.add(offset,a,0,length);
+	public void setElements(double[] source, int offset) {
+		setElements(0,source,offset,this.length);
+	}
+	
+	@Override
+	public void setElements(int offset, double[] source, int srcOffset,int length) {
+		if (length+offset>source.length) throw new IllegalArgumentException("Insufficient elements in source: "+source.length);
+		Pointer src=Pointer.to(source).withByteOffset(srcOffset*Sizeof.cl_double);
+		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, offset*Sizeof.cl_double, length*Sizeof.cl_double, src, 0, null, null);		
+	}
+	
+	public void getElements(int srcOffset,double[] dest, int destOffset, int length) {
+		if (length+destOffset>dest.length) throw new IllegalArgumentException("Insufficient elements in dest: "+dest.length);
+		Pointer dst=Pointer.to(dest).withByteOffset(destOffset*Sizeof.cl_double);
+		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), mem, CL_TRUE, srcOffset*Sizeof.cl_double, length*Sizeof.cl_double, dst, 0, null, null);
+	}
+	
+	@Override
+	public boolean isView() {
+		return false;
+	}
+
+	@Override
+	public void fill(double value) {
+		fillRange(0,length,value);
+	}
+	
+	@Override
+	public void fillRange(int offset, int length, double value) {
+		double[] pattern=new double[]{value};
+		long n=length;
+		CL.clEnqueueFillBuffer(JoclContext.commandQueue(), mem, Pointer.to(pattern), Sizeof.cl_double, offset*Sizeof.cl_double, n*Sizeof.cl_double, 0,null,null);
+	}
+
+	@Override
+	public double unsafeGet(int i) {
+		double[] result=new double[1];
+		Pointer dst=Pointer.to(result);
+		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), mem, CL_TRUE, i*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
+		return result[0];
+	}
+
+	@Override
+	public void unsafeSet(int i, double value) {
+		double[] buff=new double[1];
+		buff[0]=value;
+		Pointer src=Pointer.to(buff);
+		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, i*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
 	}
 
 	@Override
 	public double get(int i) {
 		checkIndex(i);
-		return data.unsafeGet(i+offset);
+		return unsafeGet(i);
 	}
 
 	@Override
 	public void set(int i, double value) {
 		checkIndex(i);
-		data.unsafeSet(i+offset,value);
+		unsafeSet(i,value);
 	}
 	
 	@Override
-	public void unsafeSet(int i, double value) {
-		data.unsafeSet(i+offset,value);
+	public void add(AVector a) {
+		if (a instanceof JoclVector) {
+			add((JoclVector) a);
+		} else {
+			checkSameLength(a);
+			add(0,a,0,length);
+		}	
+	}
+	
+	public void add(JoclVector a) {
+		checkSameLength(a);
+		Kernel kernel=Kernels.getKernel("add");
+		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(mem)); // target
+		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.mem)); // source
+		
+		long global_work_size[] = new long[]{length()};
+        
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);
 	}
 
 	@Override
-	public boolean isFullyMutable() {
-		return true;
-	}
-	
-	@Override
-	public void setElements(double[] source, int offset) {
-		data.setElements(this.offset, source, offset, length);
-	}
-	
-	@Override
-	public void getElements(double[] dest, int offset) {
-		data.getElements(this.offset,dest, offset,length);
+	public double dotProduct(double[] data, int offset) {
+		return toVector().dotProduct(data,offset);
 	}
 	
 	@Override
@@ -88,25 +182,12 @@ public class JoclVector extends ASizedVector {
 		checkRange(offset,length);
 		if (length==0) return Vector0.INSTANCE;
 		if (length==this.length) return this;
-		return JoclVector.wrap(data, offset+this.offset, length);
-	}
-	
-	@Override
-	public DeviceVector clone() {
-		return DeviceVector.create(data,offset,length);
-	}
-	
-	@Override
-	public JoclVector exactClone() {
-		DeviceVector dv=DeviceVector.create(this);
-		return new JoclVector(dv,0,length);
+		return JoclSubVector.wrap(this, offset, length);
 	}
 
 	@Override
-	public double dotProduct(double[] data, int offset) {
-		return DoubleArrays.dotProduct(getElements(), 0, data, offset, length);
+	public AVector exactClone() {
+		return create(this);
 	}
-
-
 
 }

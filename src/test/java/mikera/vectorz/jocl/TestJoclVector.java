@@ -11,13 +11,13 @@ public class TestJoclVector  {
 	}
 	
 	@Test public void g_JoclVector3() {
-		JoclVector m=JoclVector.newVector(3);
+		JoclSubVector m=JoclSubVector.newVector(3);
 		
 		doGenericTests(m);
 	}
 	
 	@Test public void g_DeviceVector3() {
-		DeviceVector m=DeviceVector.createLength(3);
+		JoclVector m=JoclVector.createLength(3);
 		
 		doGenericTests(m);
 	}

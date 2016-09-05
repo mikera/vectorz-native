@@ -8,9 +8,9 @@ import mikera.vectorz.Tools;
 
 @SuppressWarnings("serial")
 public class JoclMatrix extends ARectangularMatrix {
-	private final DeviceVector data;
+	private final JoclVector data;
 	
-	protected JoclMatrix(int rows, int cols, DeviceVector src) {
+	protected JoclMatrix(int rows, int cols, JoclVector src) {
 		super(rows, cols);
 		if (rows*cols!=src.length()) throw new Error("Invalid size of DeviceVector: "+src.length());
 		data=src;
@@ -68,8 +68,8 @@ public class JoclMatrix extends ARectangularMatrix {
 	 * @param source
 	 * @return
 	 */
-	public static JoclMatrix create(int rowCount, int columnCount, DeviceVector source) {
-		return new JoclMatrix(rowCount,columnCount, DeviceVector.create(source));
+	public static JoclMatrix create(int rowCount, int columnCount, JoclVector source) {
+		return new JoclMatrix(rowCount,columnCount, JoclVector.create(source));
 	}
 
 	public static JoclMatrix create(JoclMatrix a) {
@@ -81,7 +81,7 @@ public class JoclMatrix extends ARectangularMatrix {
 	protected JoclMatrix(int rows, int cols) {
 		super(rows, cols);
 		int n=Tools.toInt(rows*cols);
-		data=DeviceVector.createLength(n);
+		data=JoclVector.createLength(n);
 	}
 
 	
@@ -97,15 +97,15 @@ public class JoclMatrix extends ARectangularMatrix {
 	}
 	
 	@Override
-	public JoclVector getRow(int i) {
+	public JoclSubVector getRow(int i) {
 		return getRowView(i);
 	}
 
 	
 	@Override
-	public JoclVector getRowView(int i) {
+	public JoclSubVector getRowView(int i) {
 		checkRow(i);
-		return JoclVector.wrap(data,i*cols,cols);
+		return JoclSubVector.wrap(data,i*cols,cols);
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class JoclMatrix extends ARectangularMatrix {
 	}
 	
 	@Override
-	public DeviceVector asVector() {
+	public JoclVector asVector() {
 		return data;
 	}
 	
