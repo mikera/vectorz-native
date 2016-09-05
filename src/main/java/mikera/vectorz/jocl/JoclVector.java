@@ -12,6 +12,7 @@ import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_mem;
 
+import mikera.vectorz.AScalar;
 import mikera.vectorz.AVector;
 import mikera.vectorz.impl.ASizedVector;
 import mikera.vectorz.impl.Vector0;
@@ -183,6 +184,12 @@ public class JoclVector extends ASizedVector {
 		if (length==0) return Vector0.INSTANCE;
 		if (length==this.length) return this;
 		return JoclSubVector.wrap(this, offset, length);
+	}
+	
+	@Override
+	public AScalar slice(int position) {
+		checkIndex(position);
+		return JoclScalar.wrap(this,position);
 	}
 
 	@Override

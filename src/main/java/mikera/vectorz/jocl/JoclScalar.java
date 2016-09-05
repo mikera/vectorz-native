@@ -21,6 +21,10 @@ public class JoclScalar extends AScalar {
 		return new JoclScalar(JoclVector.create(new double[]{v}, 0, 1),0);
 	}
 	
+	public static JoclScalar wrap(JoclVector joclVector, int position) {
+		return new JoclScalar(joclVector,position);
+	}
+	
 	@Override
 	public boolean isView() {
 		return true;
@@ -33,14 +37,13 @@ public class JoclScalar extends AScalar {
 
 	@Override
 	public void set(double value) {
-		data.unsafeSet(0,value);
+		data.unsafeSet(offset,value);
 	}
 
 	@Override
 	public AScalar exactClone() {
 		return new JoclScalar(JoclVector.create(data, offset, 1),0);
 	}
-
 
 
 }

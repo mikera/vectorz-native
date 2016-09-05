@@ -1,5 +1,6 @@
 package mikera.vectorz.jocl;
 
+import mikera.vectorz.AScalar;
 import mikera.vectorz.AVector;
 import mikera.vectorz.impl.ASizedVector;
 import mikera.vectorz.impl.Vector0;
@@ -89,6 +90,12 @@ public class JoclSubVector extends ASizedVector {
 		if (length==0) return Vector0.INSTANCE;
 		if (length==this.length) return this;
 		return JoclSubVector.wrap(data, offset+this.offset, length);
+	}
+	
+	@Override
+	public AScalar slice(int position) {
+		checkIndex(position);
+		return JoclScalar.wrap(this.data,position+offset);
 	}
 	
 	@Override
