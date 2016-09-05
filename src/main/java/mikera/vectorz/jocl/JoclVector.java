@@ -9,6 +9,7 @@ import org.jocl.Sizeof;
 
 import mikera.vectorz.AVector;
 import mikera.vectorz.impl.ASizedVector;
+import mikera.vectorz.impl.Vector0;
 import mikera.vectorz.util.DoubleArrays;
 
 @SuppressWarnings("serial")
@@ -106,7 +107,14 @@ public class JoclVector extends ASizedVector {
 	public void getElements(double[] dest, int offset) {
 		data.getElements(this.offset,dest, offset,length);
 	}
-
+	
+	@Override
+	public AVector subVector(int offset, int length) {
+		checkRange(offset,length);
+		if (length==0) return Vector0.INSTANCE;
+		if (length==this.length) return this;
+		return JoclVector.wrap(data, offset+this.offset, length);
+	}
 	
 	@Override
 	public JoclVector exactClone() {
