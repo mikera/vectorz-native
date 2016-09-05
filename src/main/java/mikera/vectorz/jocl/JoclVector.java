@@ -67,6 +67,12 @@ public class JoclVector extends ASizedVector {
 	}
 	
 	@Override
+	public void getElements(double[] dest, int offset) {
+		data.getElements(this.offset,dest, offset,length);
+	}
+
+	
+	@Override
 	public JoclVector exactClone() {
 		return JoclVector.create(this);
 	}
