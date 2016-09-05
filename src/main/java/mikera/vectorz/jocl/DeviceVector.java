@@ -28,7 +28,7 @@ import mikera.vectorz.impl.Vector0;
 public class DeviceVector extends ASizedVector {
 	private static final long serialVersionUID = -5687987534975036854L;
 
-	public final cl_mem mem;
+	private final cl_mem mem;
 	
 	private DeviceVector(cl_mem mem,int length) {
 		super(length);
@@ -68,7 +68,7 @@ public class DeviceVector extends ASizedVector {
 		if (src instanceof DeviceVector) return create((DeviceVector)src);
 		int length=src.length();
 		double[] srcArray=src.asDoubleArray();
-		if (srcArray==null) srcArray=src.asDoubleArray();
+		if (srcArray==null) srcArray=src.toDoubleArray();
 		return new DeviceVector(srcArray,0,length);
 	}
 	
@@ -155,7 +155,8 @@ public class DeviceVector extends ASizedVector {
 		if (a instanceof DeviceVector) {
 			add((DeviceVector) a);
 		} else {
-			add(DeviceVector.create(a));
+			checkSameLength(a);
+			add(0,a,0,length);
 		}	
 	}
 	

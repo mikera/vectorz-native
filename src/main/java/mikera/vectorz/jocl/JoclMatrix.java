@@ -1,11 +1,5 @@
 package mikera.vectorz.jocl;
 
-import static org.jocl.CL.*;
-
-import org.jocl.CL;
-import org.jocl.Pointer;
-import org.jocl.Sizeof;
-
 import mikera.arrayz.INDArray;
 import mikera.matrixx.AMatrix;
 import mikera.matrixx.Matrix;
@@ -99,11 +93,7 @@ public class JoclMatrix extends ARectangularMatrix {
 	@Override
 	public double get(int row, int column) {
 		checkIndex(row,column);
-		int offset=column+rows*row;
-		double[] result=new double[1];
-		Pointer dst=Pointer.to(result);
-		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
-		return result[0];
+		return data.unsafeGet(row*cols+column);
 	}
 	
 	@Override
@@ -129,24 +119,13 @@ public class JoclMatrix extends ARectangularMatrix {
 	
 	public void add(JoclMatrix a) {
 		checkSameShape(a);
-		Kernel kernel=Kernels.getKernel("add");
-		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(data.mem));
-		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.data.mem));
-		
-		long global_work_size[] = new long[]{elementCount()};
-        
-		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
-				global_work_size, null, 0, null, null);
+		data.add(a.data);
 	}
 
 	@Override
 	public void set(int row, int column, double value) {
 		checkIndex(row,column);
-		int offset=column+rows*row;
-		double[] buff=new double[1];
-		buff[0]=value;
-		Pointer src=Pointer.to(buff);
-		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
+		data.unsafeSet(row*cols+column, value);
 	}
 	
 	@Override
