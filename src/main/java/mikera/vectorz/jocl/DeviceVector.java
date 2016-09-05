@@ -17,7 +17,10 @@ import mikera.vectorz.impl.ASizedVector;
 import mikera.vectorz.impl.Vector0;
 
 /**
- * Class to wrap OpenCL device memory. Automatically frees memory object on finalise.
+ * Class to wrap OpenCL device memory as Vectorz vector.
+ * Other vectorz-opencl classes should use this for underlying storage 
+ * 
+ * Automatically frees memory object on finalise.
  * 
  * @author Mike
  *
@@ -150,8 +153,8 @@ public class DeviceVector extends ASizedVector {
 	public void add(DeviceVector a) {
 		checkSameLength(a);
 		Kernel kernel=Kernels.getKernel("add");
-		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(mem));
-		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.mem));
+		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(mem)); // target
+		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.mem)); // source
 		
 		long global_work_size[] = new long[]{length()};
         
