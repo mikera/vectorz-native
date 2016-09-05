@@ -27,7 +27,7 @@ public class JoclMatrix extends ARectangularMatrix {
 	protected JoclMatrix(int rows, int cols, DeviceMem src) {
 		this(rows, cols);
 		int n=Tools.toInt(rows*cols);
-		CL.clEnqueueCopyBuffer(JoclContext.commandQueue,src.mem,data.mem,0,0,n*Sizeof.cl_double,0,null,null);
+		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,data.mem,0,0,n*Sizeof.cl_double,0,null,null);
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class JoclMatrix extends ARectangularMatrix {
 		int offset=column+rows*row;
 		double[] result=new double[1];
 		Pointer dst=Pointer.to(result);
-		CL.clEnqueueReadBuffer(JoclContext.commandQueue, data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
+		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
 		return result[0];
 	}
 
@@ -47,7 +47,7 @@ public class JoclMatrix extends ARectangularMatrix {
 		double[] buff=new double[1];
 		buff[0]=value;
 		Pointer src=Pointer.to(buff);
-		CL.clEnqueueWriteBuffer(JoclContext.commandQueue, data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
+		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, offset*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
 	}
 
 	@Override

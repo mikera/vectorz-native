@@ -21,7 +21,7 @@ public class DeviceMem {
 	}
 
 	public DeviceMem(int n) {
-		mem=clCreateBuffer(JoclContext.context,CL_MEM_READ_WRITE,n*Sizeof.cl_double, null, null);
+		mem=clCreateBuffer(JoclContext.getInstance().context,CL_MEM_READ_WRITE,n*Sizeof.cl_double, null, null);
 	}
 
 	@Override

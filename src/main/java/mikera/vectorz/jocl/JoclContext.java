@@ -4,11 +4,13 @@ import org.jocl.*;
 
 @SuppressWarnings("deprecation")
 public class JoclContext {
-	static cl_context context;
-    static cl_command_queue commandQueue;
+	static JoclContext instance=new JoclContext();
+    
+	public final cl_context context;
+	public final cl_command_queue commandQueue;
 
 	
-	static {
+	public JoclContext() {
 	     // The platform, device type and device number
         // that will be used
         final int platformIndex = 0;
@@ -50,7 +52,27 @@ public class JoclContext {
         commandQueue = clCreateCommandQueue(context, device, 0, null);
 	}
 	
+	public static JoclContext getInstance() {
+		return instance;
+	}
+	
+	@Override
+	public void finalize() throws Throwable {
+		clReleaseCommandQueue(commandQueue);
+		clReleaseContext(context);
+		super.finalize();
+	}
+
+	
 	public static void main(String[] args) {
-		System.out.println("OpenCL initialised: " + context);
+		System.out.println("OpenCL initialised: " + instance.context);
+	}
+
+	public static cl_command_queue commandQueue() {
+		return instance.commandQueue;
+	}
+	
+	public static cl_context context() {
+		return instance.context;
 	}
 }
