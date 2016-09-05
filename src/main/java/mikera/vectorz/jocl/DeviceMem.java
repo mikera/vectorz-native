@@ -41,4 +41,24 @@ public class DeviceMem {
 		Pointer src=Pointer.to(source).withByteOffset(offset*Sizeof.cl_double);
 		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, 0, length*Sizeof.cl_double, src, 0, null, null);		
 	}
+	
+	public void fill(double value) {
+		double[] pattern=new double[]{value};
+		long n=length;
+		CL.clEnqueueFillBuffer(JoclContext.commandQueue(), mem, Pointer.to(pattern), Sizeof.cl_double, 0L, n*Sizeof.cl_double, 0,null,null);
+	}
+	
+	public double unsafeGet(int i) {
+		double[] result=new double[1];
+		Pointer dst=Pointer.to(result);
+		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), mem, CL_TRUE, i*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
+		return result[0];
+	}
+
+	public void unsafeSet(int i, double value) {
+		double[] buff=new double[1];
+		buff[0]=value;
+		Pointer src=Pointer.to(buff);
+		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, i*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
+	}
 }

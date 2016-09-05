@@ -1,9 +1,6 @@
 package mikera.vectorz.jocl;
 
-import static org.jocl.CL.CL_TRUE;
-
 import org.jocl.CL;
-import org.jocl.Pointer;
 import org.jocl.Sizeof;
 
 import mikera.vectorz.impl.ASizedVector;
@@ -20,31 +17,43 @@ public class JoclVector extends ASizedVector {
 	
 	protected JoclVector(int length) {
 		super(length);
-		data=new DeviceMem(length);
 		offset=0;
+		data=new DeviceMem(length);
+		data.fill(0.0);
 	}
 	
-	protected JoclVector(int length, DeviceMem src) {
-		this(length);
-		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,data.mem,0,offset*Sizeof.cl_double,length*Sizeof.cl_double,0,null,null);
+	public JoclVector(DeviceMem data, int offset, int length) {
+		super(length);
+		this.data=data;
+		this.offset=offset;
+	}
+
+	public static JoclVector wrap(DeviceMem data, int offset, int length) {
+		return new JoclVector(data,offset,length);
+	}
+	
+	public static JoclVector create(JoclVector src) {
+		int length=src.length;
+		JoclVector v=new JoclVector(length);
+		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.data.mem,v.data.mem,src.offset*Sizeof.cl_double,0,length*Sizeof.cl_double,0,null,null);
+		return v;
 	}
 
 	@Override
 	public double get(int i) {
 		checkIndex(i);
-		double[] result=new double[1];
-		Pointer dst=Pointer.to(result);
-		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, (offset+i)*Sizeof.cl_double, Sizeof.cl_double, dst, 0, null, null);
-		return result[0];
+		return data.unsafeGet(i+offset);
 	}
 
 	@Override
 	public void set(int i, double value) {
 		checkIndex(i);
-		double[] buff=new double[1];
-		buff[0]=value;
-		Pointer src=Pointer.to(buff);
-		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, (offset+i)*Sizeof.cl_double, Sizeof.cl_double, src, 0, null, null);
+		data.unsafeSet(i+offset,value);
+	}
+	
+	@Override
+	public void unsafeSet(int i, double value) {
+		data.unsafeSet(i+offset,value);
 	}
 
 	@Override
@@ -54,18 +63,19 @@ public class JoclVector extends ASizedVector {
 	
 	@Override
 	public void setElements(double[] source, int offset) {
-		data.setElements(source, offset);
+		data.setElements(source, this.offset+offset);
 	}
 	
 	@Override
 	public JoclVector exactClone() {
-		return new JoclVector(length,data);
+		return JoclVector.create(this);
 	}
 
 	@Override
 	public double dotProduct(double[] data, int offset) {
 		return DoubleArrays.dotProduct(getElements(), 0, data, offset, length);
 	}
+
 
 
 }

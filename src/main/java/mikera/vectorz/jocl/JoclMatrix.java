@@ -82,9 +82,7 @@ public class JoclMatrix extends ARectangularMatrix {
 	
 	@Override
 	public void fill(double value) {
-		double[] pattern=new double[]{value};
-		long n=rows*cols;
-		CL.clEnqueueFillBuffer(JoclContext.commandQueue(), data.mem, Pointer.to(pattern), Sizeof.cl_double, 0L, n*Sizeof.cl_double, 0,null,null);
+		data.fill(value);
 	}
 
 	@Override
@@ -104,6 +102,12 @@ public class JoclMatrix extends ARectangularMatrix {
 		} else {
 			add(JoclMatrix.create(a));
 		}	
+	}
+	
+	@Override
+	public JoclVector getRowView(int i) {
+		checkRow(i);
+		return JoclVector.wrap(data,i*cols,cols);
 	}
 	
 	public void add(JoclMatrix a) {
