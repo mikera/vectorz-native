@@ -13,8 +13,11 @@ public class TestJoclMatrix  {
 		
 		assertEquals(4.0,m.get(1,1),0.0);
 		
-		m.set(0,1,2.0);
-		assertEquals(2.0,m.get(0,1),0.0);
+		m.set(1,0,2.0);
+		assertEquals(2.0,m.get(1,0),0.0);
+		
+		m.add(new Matrix22(1,2,3,3));
+		assertEquals(7.0,m.get(1,1),0.0);
 	}
 	
 	public void doGenericTests(JoclMatrix m) {

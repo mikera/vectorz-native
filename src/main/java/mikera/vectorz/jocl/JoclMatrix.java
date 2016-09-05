@@ -1,6 +1,6 @@
 package mikera.vectorz.jocl;
 
-import static org.jocl.CL.CL_TRUE;
+import static org.jocl.CL.*;
 
 import org.jocl.CL;
 import org.jocl.Pointer;
@@ -18,6 +18,11 @@ public class JoclMatrix extends ARectangularMatrix {
 		return new JoclMatrix(rows,cols);
 	}
 	
+	/**
+	 * Create a JoclMatrix as a copy of the given source array
+	 * @param a
+	 * @return
+	 */
 	public static JoclMatrix create(AMatrix a) {
 		if (a instanceof JoclMatrix) {
 			return create((JoclMatrix)a);
@@ -72,9 +77,19 @@ public class JoclMatrix extends ARectangularMatrix {
 	@Override
 	public void add(AMatrix a) {
 		if (a instanceof JoclMatrix) {
-			
-		}
-		
+			add((JoclMatrix) a);
+		} else {
+			add(JoclMatrix.create(a));
+		}	
+	}
+	
+	public void add(JoclMatrix a) {
+		checkSameShape(a);
+		Kernel kernel=Kernels.getKernel("add");
+		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(data.mem));
+		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.data.mem));
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+	            new long[]{elementCount()}, new long[]{1}, 0, null, null);
 	}
 
 	@Override
