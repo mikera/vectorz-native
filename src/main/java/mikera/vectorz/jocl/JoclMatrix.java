@@ -96,15 +96,6 @@ public class JoclMatrix extends ARectangularMatrix {
 	}
 	
 	@Override
-	public void add(AMatrix a) {
-		if (a instanceof JoclMatrix) {
-			add((JoclMatrix) a);
-		} else {
-			add(JoclMatrix.create(a));
-		}	
-	}
-	
-	@Override
 	public JoclVector getRow(int i) {
 		return getRowView(i);
 	}
@@ -114,6 +105,15 @@ public class JoclMatrix extends ARectangularMatrix {
 	public JoclVector getRowView(int i) {
 		checkRow(i);
 		return JoclVector.wrap(data,i*cols,cols);
+	}
+
+	@Override
+	public void add(AMatrix a) {
+		if (a instanceof JoclMatrix) {
+			add((JoclMatrix) a);
+		} else {
+			add(JoclMatrix.create(a));
+		}	
 	}
 	
 	public void add(JoclMatrix a) {

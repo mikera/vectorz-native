@@ -1,8 +1,13 @@
 package mikera.vectorz.jocl;
 
+import static org.jocl.CL.clEnqueueNDRangeKernel;
+import static org.jocl.CL.clSetKernelArg;
+
 import org.jocl.CL;
+import org.jocl.Pointer;
 import org.jocl.Sizeof;
 
+import mikera.vectorz.AVector;
 import mikera.vectorz.impl.ASizedVector;
 import mikera.vectorz.util.DoubleArrays;
 
@@ -32,11 +37,45 @@ public class JoclVector extends ASizedVector {
 		return new JoclVector(data,offset,length);
 	}
 	
+	public static JoclVector create(AVector src) {
+		if (src instanceof JoclVector) return create((JoclVector)src);
+		double[] srcArray=src.asDoubleArray();
+		if (srcArray==null) srcArray=src.asDoubleArray();
+		return create(srcArray,0,srcArray.length);
+	}
+	
+	public static JoclVector create(double[] srcArray, int offset, int length) {
+		JoclVector v=new JoclVector(length);
+		v.data.setElements(0, srcArray, offset,length);
+		return v;
+	}
+
 	public static JoclVector create(JoclVector src) {
 		int length=src.length;
 		JoclVector v=new JoclVector(length);
 		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.data.mem,v.data.mem,src.offset*Sizeof.cl_double,0,length*Sizeof.cl_double,0,null,null);
 		return v;
+	}
+	
+	@Override
+	public void add(AVector a) {
+		if (a instanceof JoclVector) {
+			add((JoclVector) a);
+		} else {
+			add(JoclVector.create(a));
+		}	
+	}
+	
+	public void add(JoclVector a) {
+		checkSameLength(a);
+		Kernel kernel=Kernels.getKernel("add");
+		clSetKernelArg(kernel.kernel, 0, (long)Sizeof.cl_mem, Pointer.to(data.mem).withByteOffset(offset*Sizeof.cl_double));
+		clSetKernelArg(kernel.kernel, 1, (long)Sizeof.cl_mem, Pointer.to(a.data.mem).withByteOffset(a.offset*Sizeof.cl_double));
+		
+		long global_work_size[] = new long[]{elementCount()};
+        
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);
 	}
 
 	@Override

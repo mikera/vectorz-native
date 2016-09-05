@@ -37,9 +37,13 @@ public class DeviceMem {
 	}
 	
 	public void setElements(double[] source, int offset) {
+		setElements(0,source,offset,this.length);
+	}
+	
+	public void setElements(int offset, double[] source, int srcOffset,int length) {
 		if (length+offset>source.length) throw new IllegalArgumentException("Insufficient elements in source: "+source.length);
-		Pointer src=Pointer.to(source).withByteOffset(offset*Sizeof.cl_double);
-		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, 0, length*Sizeof.cl_double, src, 0, null, null);		
+		Pointer src=Pointer.to(source).withByteOffset(srcOffset*Sizeof.cl_double);
+		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, offset*Sizeof.cl_double, length*Sizeof.cl_double, src, 0, null, null);		
 	}
 	
 	public void getElements(int srcOffset,double[] dest, int destOffset, int length) {
