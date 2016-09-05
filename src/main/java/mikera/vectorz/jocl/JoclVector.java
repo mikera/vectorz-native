@@ -186,7 +186,12 @@ public class JoclVector extends ASizedVector {
 	}
 
 	@Override
-	public AVector exactClone() {
+	public JoclVector exactClone() {
+		return create(this);
+	}
+	
+	@Override
+	public JoclVector clone() {
 		return create(this);
 	}
 
