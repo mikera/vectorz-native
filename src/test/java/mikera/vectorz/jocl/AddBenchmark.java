@@ -24,8 +24,9 @@ public class AddBenchmark extends SimpleBenchmark {
 	int DIM_SIZE=256;
 
 	public void timeAdd(int runs) {
-		JoclMatrix m=JoclMatrix.create(RangeVector.create(0, DIM_SIZE*DIM_SIZE).reshape(DIM_SIZE,DIM_SIZE));
+		JoclMatrix m=JoclMatrix.newMatrix(DIM_SIZE,DIM_SIZE);
 		JoclMatrix m2=JoclMatrix.create(RangeVector.create(0, DIM_SIZE*DIM_SIZE).reshape(DIM_SIZE,DIM_SIZE));
+		m.add(m2); // do this to ensure any initialisation happens
 
 		for (int i=0; i<runs; i++) {
 			m.add(m2);

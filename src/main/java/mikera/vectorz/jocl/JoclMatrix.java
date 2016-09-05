@@ -71,12 +71,20 @@ public class JoclMatrix extends ARectangularMatrix {
 		super(rows, cols);
 		int n=Tools.toInt(rows*cols);
 		data=new DeviceMem(n);
+		fill(0.0);
 	}
 	
 	protected JoclMatrix(int rows, int cols, DeviceMem src) {
 		this(rows, cols);
 		int n=Tools.toInt(rows*cols);
 		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,data.mem,0,0,n*Sizeof.cl_double,0,null,null);
+	}
+	
+	@Override
+	public void fill(double value) {
+		double[] pattern=new double[]{value};
+		long n=rows*cols;
+		CL.clEnqueueFillBuffer(JoclContext.commandQueue(), data.mem, Pointer.to(pattern), Sizeof.cl_double, 0L, n*Sizeof.cl_double, 0,null,null);
 	}
 
 	@Override
