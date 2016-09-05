@@ -21,28 +21,28 @@ import com.google.caliper.SimpleBenchmark;
 public class AddBenchmark extends SimpleBenchmark {
 	double result;
 	
-	int LIST_SIZE=100;
+	int DIM_SIZE=256;
 
 	public void timeAdd(int runs) {
-		JoclMatrix m=JoclMatrix.create(RangeVector.create(0, 10000).reshape(100,100));
-		JoclMatrix m2=JoclMatrix.create(RangeVector.create(0, 10000).reshape(100,100));
+		JoclMatrix m=JoclMatrix.create(RangeVector.create(0, DIM_SIZE*DIM_SIZE).reshape(DIM_SIZE,DIM_SIZE));
+		JoclMatrix m2=JoclMatrix.create(RangeVector.create(0, DIM_SIZE*DIM_SIZE).reshape(DIM_SIZE,DIM_SIZE));
 
 		for (int i=0; i<runs; i++) {
 			m.add(m2);
 		}
-		result=m.get(99,99);
-		if (result!=9999.0*(1+runs)) throw new Error("Wrong result: "+ result);
+		result=m.get(DIM_SIZE-1,DIM_SIZE-1);
+		if (result!=(DIM_SIZE*DIM_SIZE-1.0)*(1+runs)) throw new Error("Wrong result: "+ result);
 	}
 	
 	public void timeAddJava(int runs) {
-		Matrix m=Matrix.create(RangeVector.create(0, 10000).reshape(100,100));
-		Matrix m2=Matrix.create(RangeVector.create(0, 10000).reshape(100,100));
+		Matrix m=Matrix.create(RangeVector.create(0, DIM_SIZE*DIM_SIZE).reshape(DIM_SIZE,DIM_SIZE));
+		Matrix m2=Matrix.create(RangeVector.create(0, DIM_SIZE*DIM_SIZE).reshape(DIM_SIZE,DIM_SIZE));
 
 		for (int i=0; i<runs; i++) {
 			m.add(m2);
 		}
-		result=m.get(99,99);
-		if (result!=9999.0*(1+runs)) throw new Error("Wrong result: "+ result);
+		result=m.get(DIM_SIZE-1,DIM_SIZE-1);
+		if (result!=(DIM_SIZE*DIM_SIZE-1.0)*(1+runs)) throw new Error("Wrong result: "+ result);
 	}
 
 	public static void main(String[] args) {
