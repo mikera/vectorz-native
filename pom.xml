@@ -35,17 +35,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.mikera</groupId>
-			<artifactId>vectorz-clj</artifactId>
-			<version>0.32.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>criterium</groupId>
-			<artifactId>criterium</artifactId>
-			<version>0.4.3</version>
-		</dependency>
-		<dependency>
 			<groupId>org.scalanlp</groupId>
 			<artifactId>jcuda</artifactId>
 			<version>0.5.5</version>
