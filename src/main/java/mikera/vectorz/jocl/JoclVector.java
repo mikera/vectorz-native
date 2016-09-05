@@ -117,6 +117,11 @@ public class JoclVector extends ASizedVector {
 	}
 	
 	@Override
+	public DeviceVector clone() {
+		return DeviceVector.create(data,offset,length);
+	}
+	
+	@Override
 	public JoclVector exactClone() {
 		return JoclVector.create(this);
 	}

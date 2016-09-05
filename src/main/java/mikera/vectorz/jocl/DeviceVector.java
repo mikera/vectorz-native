@@ -77,9 +77,13 @@ public class DeviceVector extends ASizedVector {
 	}
 	
 	public static DeviceVector create(DeviceVector src) {
-		int length=src.length;
+		return create(src,0,src.length());
+	}
+
+	public static DeviceVector create(DeviceVector src, int offset, int length) {
+		src.checkRange(offset, length);
 		DeviceVector v=new DeviceVector(length);
-		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,v.mem,0,0,length*Sizeof.cl_double,0,null,null);
+		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.mem,v.mem,offset*Sizeof.cl_double,0,length*Sizeof.cl_double,0,null,null);
 		return v;
 	}
 	
@@ -99,6 +103,11 @@ public class DeviceVector extends ASizedVector {
 		if (length+destOffset>dest.length) throw new IllegalArgumentException("Insufficient elements in dest: "+dest.length);
 		Pointer dst=Pointer.to(dest).withByteOffset(destOffset*Sizeof.cl_double);
 		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), mem, CL_TRUE, srcOffset*Sizeof.cl_double, length*Sizeof.cl_double, dst, 0, null, null);
+	}
+	
+	@Override
+	public boolean isView() {
+		return false;
 	}
 
 	@Override
@@ -179,4 +188,5 @@ public class DeviceVector extends ASizedVector {
 	public AVector exactClone() {
 		return create(this);
 	}
+
 }
