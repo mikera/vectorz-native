@@ -102,7 +102,7 @@ public class JoclVector extends ASizedVector {
 	
 	@Override
 	public void setElements(double[] source, int offset) {
-		data.setElements(source, this.offset+offset);
+		data.setElements(this.offset, source, offset, length);
 	}
 	
 	@Override
