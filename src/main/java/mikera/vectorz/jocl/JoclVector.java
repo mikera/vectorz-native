@@ -14,7 +14,6 @@ import org.jocl.cl_mem;
 
 import mikera.vectorz.AScalar;
 import mikera.vectorz.AVector;
-import mikera.vectorz.impl.ASizedVector;
 import mikera.vectorz.impl.Vector0;
 
 /**
@@ -26,7 +25,7 @@ import mikera.vectorz.impl.Vector0;
  * @author Mike
  *
  */
-public class JoclVector extends ASizedVector {
+public class JoclVector extends ADenseJoclVector {
 	private static final long serialVersionUID = -5687987534975036854L;
 
 	private final cl_mem mem;
@@ -57,6 +56,16 @@ public class JoclVector extends ASizedVector {
 	public void finalize() throws Throwable {
 		clReleaseMemObject(mem);
 		super.finalize();
+	}
+	
+	@Override
+	public JoclVector getData() {
+		return this;
+	}
+
+	@Override
+	public int getDataOffset() {
+		return 0;
 	}
 	
 	public static JoclVector createLength(int length) {
@@ -201,5 +210,6 @@ public class JoclVector extends ASizedVector {
 	public JoclVector clone() {
 		return create(this);
 	}
+
 
 }

@@ -2,12 +2,11 @@ package mikera.vectorz.jocl;
 
 import mikera.vectorz.AScalar;
 import mikera.vectorz.AVector;
-import mikera.vectorz.impl.ASizedVector;
 import mikera.vectorz.impl.Vector0;
 import mikera.vectorz.util.DoubleArrays;
 
 @SuppressWarnings("serial")
-public class JoclSubVector extends ASizedVector {
+public class JoclSubVector extends ADenseJoclVector {
 	private final JoclVector data;
 	private final int offset;
 
@@ -112,6 +111,16 @@ public class JoclSubVector extends ASizedVector {
 	@Override
 	public double dotProduct(double[] data, int offset) {
 		return DoubleArrays.dotProduct(getElements(), 0, data, offset, length);
+	}
+
+	@Override
+	public JoclVector getData() {
+		return data;
+	}
+
+	@Override
+	public int getDataOffset() {
+		return offset;
 	}
 
 
