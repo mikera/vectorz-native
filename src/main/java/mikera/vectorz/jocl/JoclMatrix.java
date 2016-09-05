@@ -130,9 +130,7 @@ public class JoclMatrix extends ARectangularMatrix {
 	
 	@Override
 	public void setElements(double[] source, int offset) {
-		Pointer src=Pointer.to(source).withByteOffset(offset*Sizeof.cl_double);
-		int ec=(int)elementCount();
-		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), data.mem, CL_TRUE, 0, ec*Sizeof.cl_double, src, 0, null, null);		
+		data.setElements(source, offset);
 	}
 
 	@Override

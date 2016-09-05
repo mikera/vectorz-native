@@ -51,7 +51,12 @@ public class JoclVector extends ASizedVector {
 	public boolean isFullyMutable() {
 		return true;
 	}
-
+	
+	@Override
+	public void setElements(double[] source, int offset) {
+		data.setElements(source, offset);
+	}
+	
 	@Override
 	public JoclVector exactClone() {
 		return new JoclVector(length,data);
