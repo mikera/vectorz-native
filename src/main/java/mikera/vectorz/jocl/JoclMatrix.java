@@ -79,19 +79,16 @@ public class JoclMatrix extends ARectangularMatrix implements IFastRows {
 		return result;
 	}
 
-	
 	protected JoclMatrix(int rows, int cols) {
 		super(rows, cols);
 		int n=Tools.toInt(rows*cols);
 		data=JoclVector.createLength(n);
 	}
 
-	
 	@Override
 	public void fill(double value) {
 		data.fill(value);
 	}
-	
 	
 	@Override
 	public void applyOp(Op op) {
@@ -108,7 +105,6 @@ public class JoclMatrix extends ARectangularMatrix implements IFastRows {
 	public JoclSubVector getRow(int i) {
 		return getRowView(i);
 	}
-
 	
 	@Override
 	public JoclSubVector getRowView(int i) {
@@ -123,6 +119,11 @@ public class JoclMatrix extends ARectangularMatrix implements IFastRows {
 		} else {
 			add(JoclMatrix.create(a));
 		}	
+	}
+	
+	@Override
+	public void copyRowTo(int i, double[] dest, int destOffset) {
+		getRow(i).getElements(dest,destOffset);
 	}
 	
 	public void add(JoclMatrix a) {
