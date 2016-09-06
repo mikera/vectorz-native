@@ -57,6 +57,16 @@ public abstract class ADenseJoclVector extends ASizedVector implements IDense {
 		}
 	}
 	
+	@Override
+	public void addMultiple(AVector src, double factor) {
+		scaleAdd(1.0,src,factor,0.0);
+	}
+	
+	@Override
+	public void addMultiple(int offset, AVector src, int srcOffset, int length, double factor) {
+		subVector(offset,length).addMultiple(src.subVector(srcOffset,length), length);
+	}
+	
 	public void set(ADenseJoclVector src) {
 		checkSameLength(src);
 		getData().setElements(getDataOffset(), src, 0, length);
