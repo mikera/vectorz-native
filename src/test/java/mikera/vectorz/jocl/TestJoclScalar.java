@@ -10,7 +10,7 @@ public class TestJoclScalar  {
 		new mikera.arrayz.TestArrays().testArray(m);
 	}
 	
-	@Test public void g_JoclVector3() {
+	@Test public void g_JoclScalar() {
 		JoclScalar s=JoclScalar.create(2);
 		
 		doGenericTests(s);
