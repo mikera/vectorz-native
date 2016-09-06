@@ -295,15 +295,15 @@ public class JoclVector extends ADenseJoclVector {
 				global_work_size, null, 0, null, null);		
 	}
 	
+	private static final long[] SINGLE_ELEMENT_WORK_SIZE = new long[]{1};
+	
 	private void applyKernel(Kernel kernel,int offset, double a) {
 		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer()); // target
 		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_int, Pointer.to(new int[]{offset})); // offset
 		clSetKernelArg(kernel.kernel, 2, Sizeof.cl_double, Pointer.to(new double[]{a})); 
 		
-		long global_work_size[] = new long[]{1};
-        
 		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
-				global_work_size, null, 0, null, null);		
+				SINGLE_ELEMENT_WORK_SIZE, null, 0, null, null);		
 	}
 	
 	@Override
