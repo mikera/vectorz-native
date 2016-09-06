@@ -150,6 +150,17 @@ public class JoclSubVector extends ADenseJoclVector {
 		JoclVector dv=JoclVector.create(this);
 		return new JoclSubVector(dv,0,length);
 	}
+	
+	@Override
+	public double dotProduct(AVector v) {
+		if (v instanceof ADenseJoclVector) {
+			int n=checkSameLength(v);
+			return data.dotProduct(offset,(ADenseJoclVector) v,0,n);
+		} else {
+			checkSameLength(v);
+			return v.dotProduct(getElements(),0);
+		}
+	}
 
 	@Override
 	public double dotProduct(double[] data, int offset) {
