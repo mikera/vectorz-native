@@ -1,15 +1,11 @@
 package mikera.vectorz.jocl;
 
-import static org.jocl.CL.CL_MEM_READ_WRITE;
-import static org.jocl.CL.CL_TRUE;
-import static org.jocl.CL.clCreateBuffer;
-import static org.jocl.CL.clEnqueueNDRangeKernel;
-import static org.jocl.CL.clReleaseMemObject;
-import static org.jocl.CL.clSetKernelArg;
+import static org.jocl.CL.*;
 
 import org.jocl.CL;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
+import org.jocl.cl_buffer_region;
 import org.jocl.cl_mem;
 
 import mikera.vectorz.AScalar;
@@ -51,12 +47,6 @@ public class JoclVector extends ADenseJoclVector {
 		setElements(data,offset);
 	}
 
-
-	@Override
-	public void finalize() throws Throwable {
-		clReleaseMemObject(mem);
-		super.finalize();
-	}
 	
 	@Override
 	public JoclVector getData() {
@@ -104,12 +94,13 @@ public class JoclVector extends ADenseJoclVector {
 	
 	@Override
 	public void setElements(int offset, double[] source, int srcOffset,int length) {
-		if (length+offset>source.length) throw new IllegalArgumentException("Insufficient elements in source: "+source.length);
+		if ((length+srcOffset)>source.length) throw new IllegalArgumentException("Insufficient elements in source: "+source.length);
 		Pointer src=Pointer.to(source).withByteOffset(srcOffset*Sizeof.cl_double);
 		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, offset*Sizeof.cl_double, length*Sizeof.cl_double, src, 0, null, null);		
 	}
 	
-	public void getElements(int srcOffset,double[] dest, int destOffset, int length) {
+	@Override
+	public void copyTo(int srcOffset,double[] dest, int destOffset, int length) {
 		if (length+destOffset>dest.length) throw new IllegalArgumentException("Insufficient elements in dest: "+dest.length);
 		Pointer dst=Pointer.to(dest).withByteOffset(destOffset*Sizeof.cl_double);
 		CL.clEnqueueReadBuffer(JoclContext.commandQueue(), mem, CL_TRUE, srcOffset*Sizeof.cl_double, length*Sizeof.cl_double, dst, 0, null, null);
@@ -173,13 +164,7 @@ public class JoclVector extends ADenseJoclVector {
 	public void add(int offset, ADenseJoclVector src,int srcOffset, int length) {
 		checkRange(srcOffset,length);
 		Kernel kernel=Kernels.getKernel("add");
-		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer(offset)); // target
-		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_mem, src.pointer(srcOffset)); // source
-		
-		long global_work_size[] = new long[]{length};
-        
-		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
-				global_work_size, null, 0, null, null);
+		applyKernel(kernel,offset,src,srcOffset,length);
 	}
 	
 	@Override
@@ -195,23 +180,34 @@ public class JoclVector extends ADenseJoclVector {
 	public void multiply(int offset, ADenseJoclVector src,int srcOffset, int length) {
 		checkRange(srcOffset,length);
 		Kernel kernel=Kernels.getKernel("mul");
-		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer(offset)); // target
-		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_mem, src.pointer(srcOffset)); // source
+		applyKernel(kernel,offset,src,srcOffset,length);
+	}
+	
+	private void applyKernel(Kernel kernel,int offset, ADenseJoclVector src,int srcOffset, int length) {
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer()); // target
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_mem, src.getData().pointer()); // source
+		clSetKernelArg(kernel.kernel, 2, Sizeof.cl_int, Pointer.to(new int[]{offset})); // source
+		clSetKernelArg(kernel.kernel, 3, Sizeof.cl_int, Pointer.to(new int[]{srcOffset+src.getDataOffset()})); // source
 		
 		long global_work_size[] = new long[]{length};
         
 		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
-				global_work_size, null, 0, null, null);
-	}
-
-	@Override
-	public Pointer pointer() {
-		return Pointer.to(mem);
+				global_work_size, null, 0, null, null);		
 	}
 	
 	@Override
-	public Pointer pointer(int offset) {
-		return Pointer.to(mem).withByteOffset(offset*Sizeof.cl_double);
+	public void applyOp(KernelOp op, int start, int length) {
+		checkRange(start,length);
+		Kernel kernel=op.getKernel();
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer()); // target
+		long global_work_size[] = new long[]{length};
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);	
+	}
+
+
+	public Pointer pointer() {
+		return Pointer.to(mem);
 	}
 
 	@Override
@@ -243,5 +239,10 @@ public class JoclVector extends ADenseJoclVector {
 		return create(this);
 	}
 
+	@Override
+	public void finalize() throws Throwable {
+		clReleaseMemObject(mem);
+		super.finalize();
+	}
 
 }

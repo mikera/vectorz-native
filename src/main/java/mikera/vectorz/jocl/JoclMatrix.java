@@ -4,6 +4,7 @@ import mikera.arrayz.INDArray;
 import mikera.matrixx.AMatrix;
 import mikera.matrixx.Matrix;
 import mikera.matrixx.impl.ARectangularMatrix;
+import mikera.vectorz.Op;
 import mikera.vectorz.Tools;
 
 @SuppressWarnings("serial")
@@ -89,6 +90,12 @@ public class JoclMatrix extends ARectangularMatrix {
 	public void fill(double value) {
 		data.fill(value);
 	}
+	
+	
+	@Override
+	public void applyOp(Op op) {
+		data.applyOp(op);
+	}
 
 	@Override
 	public double get(int row, int column) {
@@ -140,7 +147,7 @@ public class JoclMatrix extends ARectangularMatrix {
 	
 	@Override
 	public void getElements(double[] dest, int offset) {
-		data.getElements(0,dest, offset,rows*cols);
+		data.copyTo(0,dest, offset,rows*cols);
 	}
 
 	@Override

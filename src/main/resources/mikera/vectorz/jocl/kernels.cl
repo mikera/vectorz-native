@@ -6,17 +6,17 @@ addCopy(__global double *a, __global const double *b,__global const double *c)
 }
 
 __kernel void 
-add(__global double *a, __global const double *b)
+add(__global double *a, __global const double *b, const int aoffset, const int boffset)
 {
 	int gid = get_global_id(0);
-	a[gid] += b[gid];
+	a[gid+aoffset] += b[gid+boffset];
 }
 
 __kernel void 
-mul(__global double *a, __global const double *b)
+mul(__global double *a, __global const double *b, const int aoffset, const int boffset)
 {
 	int gid = get_global_id(0);
-	a[gid] *= b[gid];
+	a[gid+aoffset] *= b[gid+boffset];
 }
 
 __kernel void 

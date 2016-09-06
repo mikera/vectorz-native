@@ -8,7 +8,7 @@ import org.jocl.*;
 
 @SuppressWarnings("deprecation")
 public class JoclContext {
-	static JoclContext instance=new JoclContext();
+	private static JoclContext instance=new JoclContext();
     
 	public final cl_context context;
 	public final cl_command_queue commandQueue;
@@ -22,7 +22,7 @@ public class JoclContext {
      * @param paramName The parameter name
      * @return The value
      */
-    private static long getSize(cl_device_id device, int paramName)
+    public static long getSize(cl_device_id device, int paramName)
     {
         return getSizes(device, paramName, 1)[0];
     }
@@ -96,8 +96,8 @@ public class JoclContext {
         clGetDeviceIDs(platform, deviceType, numDevices, devices, null);
         cl_device_id device = devices[deviceIndex];
         
-        long maxWorkGroupSize = getSize(device, CL_DEVICE_MAX_WORK_GROUP_SIZE);
-        System.out.printf("CL_DEVICE_MAX_WORK_GROUP_SIZE:\t\t%d\n", maxWorkGroupSize);
+        // long maxWorkGroupSize = getSize(device, CL_DEVICE_MAX_WORK_GROUP_SIZE);
+        // System.out.printf("CL_DEVICE_MAX_WORK_GROUP_SIZE:\t\t%d\n", maxWorkGroupSize);
         
         // Create a context for the selected device
         context = clCreateContext(

@@ -67,6 +67,13 @@ public class JoclSubVector extends ADenseJoclVector {
 	public void unsafeSet(int i, double value) {
 		data.unsafeSet(i+offset,value);
 	}
+	
+	@Override
+	public void applyOp(KernelOp op, int start, int length) {
+		checkRange(start,length);
+		data.applyOp(op,offset+start,length);
+	}
+
 
 	@Override
 	public boolean isFullyMutable() {
@@ -80,7 +87,7 @@ public class JoclSubVector extends ADenseJoclVector {
 	
 	@Override
 	public void getElements(double[] dest, int offset) {
-		data.getElements(this.offset,dest, offset,length);
+		data.copyTo(this.offset, dest, offset,length);
 	}
 	
 	@Override
@@ -122,6 +129,7 @@ public class JoclSubVector extends ADenseJoclVector {
 	public int getDataOffset() {
 		return offset;
 	}
+
 
 
 

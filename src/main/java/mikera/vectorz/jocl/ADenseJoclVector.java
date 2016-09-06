@@ -2,6 +2,7 @@ package mikera.vectorz.jocl;
 
 import org.jocl.Pointer;
 
+import mikera.vectorz.Op;
 import mikera.vectorz.impl.ASizedVector;
 
 /**
@@ -27,12 +28,28 @@ public abstract class ADenseJoclVector extends ASizedVector {
 			return JoclSubVector.wrap(getData(), getDataOffset(), length);
 		}
 	}
-
-	public Pointer pointer() {
-		return getData().pointer(getDataOffset());
+	
+	@Override
+	public void applyOp(Op op) {
+		if (op instanceof KernelOp) {
+			// fast path for KernelOps
+			applyOp((KernelOp) op,0,length);
+			return;
+		}
+		
+		KernelOp kop=KernelOps.findSubstitute(op);
+		if (kop!=null) {
+			// use substitute kernel op
+			applyOp(kop,0,length);
+			return;
+		} else {
+			// execute in Java array, best we can do...
+			double[] xs=getElements();
+			if (xs.length!=length) throw new Error("Unexpected length");
+			op.applyTo(xs);
+			setElements(xs);
+		}	
 	}
 	
-	public Pointer pointer(int offset) {
-		return getData().pointer(getDataOffset()+offset);
-	}
+	protected abstract void applyOp(KernelOp op, int start, int length);
 }
