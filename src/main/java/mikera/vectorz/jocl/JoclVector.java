@@ -181,7 +181,7 @@ public class JoclVector extends ADenseJoclVector {
 	}
 	
 	public void add(int offset, ADenseJoclVector src,int srcOffset, int length) {
-		checkRange(srcOffset,length);
+		src.checkRange(srcOffset,length);
 		Kernel kernel=Kernels.getKernel("add");
 		applyKernel(kernel,offset,src,srcOffset,length);
 	}
