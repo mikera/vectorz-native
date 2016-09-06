@@ -240,6 +240,12 @@ public class JoclVector extends ADenseJoclVector {
 	}
 	
 	@Override
+	public void scaleAdd(double factor, AVector v) {
+		multiply(factor);
+		add(v);
+	}
+	
+	@Override
 	public void multiply(double factor) {
 		scaleAdd(0,length,factor,0.0);
 	}
@@ -322,6 +328,38 @@ public class JoclVector extends ADenseJoclVector {
 		return Pointer.to(mem);
 	}
 
+	@Override
+	public double dotProduct(AVector v) {
+		if (v instanceof ADenseJoclVector) {
+			return dotProduct((ADenseJoclVector) v);
+		} else {
+			checkSameLength(v);
+			return v.dotProduct(getElements(),0);
+		}
+	}
+	
+	public double dotProduct(ADenseJoclVector v) {
+		int n=checkSameLength(v);
+		return dotProduct(0,v,0,n);
+	}
+		
+	double dotProduct(int thisOffset,ADenseJoclVector v, int vOffset, int length) {
+		Kernel kernel=Kernels.getKernel("dotProduct");
+		double[] res=new double[1];
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_double, Pointer.to(res)); // result
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_mem, pointer()); // this
+		clSetKernelArg(kernel.kernel, 2, Sizeof.cl_mem, v.getData().pointer()); // target
+		clSetKernelArg(kernel.kernel, 3, Sizeof.cl_int, Pointer.to(new int[]{thisOffset})); // this offset
+		clSetKernelArg(kernel.kernel, 4, Sizeof.cl_int, Pointer.to(new int[]{vOffset+v.getDataOffset()})); // voffset
+		clSetKernelArg(kernel.kernel, 5, Sizeof.cl_int, Pointer.to(new int[]{length})); // length
+		clSetKernelArg(kernel.kernel, 6, Sizeof.cl_int, Pointer.to(new int[]{1})); // stride
+		clSetKernelArg(kernel.kernel, 7, Sizeof.cl_int, Pointer.to(new int[]{length})); // row step
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				SINGLE_ELEMENT_WORK_SIZE, null, 0, null, null);	
+		
+		return res[0];
+	}
+	
 	@Override
 	public double dotProduct(double[] data, int offset) {
 		return toVector().dotProduct(data,offset);

@@ -46,3 +46,14 @@ addAt(__global double *a, const int offset, const double v)
 {
 	a[offset] += v;
 }
+
+__kernel void 
+dotProduct(__global double *res, __global const double *a, __global const double *b, const int aoffset, const int boffset, const int n, const int stride, const int step)
+{
+	double acc=0.0;
+	int row=get_global_id(0);
+	for(int i = 0; i < n; i++) {
+		acc+=a[aoffset+i+row*step]*b[boffset+i*stride];
+	}
+	res[row]=acc;
+}
