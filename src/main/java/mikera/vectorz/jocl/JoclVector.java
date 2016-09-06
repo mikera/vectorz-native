@@ -103,6 +103,10 @@ public class JoclVector extends ADenseJoclVector {
 		CL.clEnqueueWriteBuffer(JoclContext.commandQueue(), mem, CL_TRUE, offset*Sizeof.cl_double, length*Sizeof.cl_double, src, 0, null, null);		
 	}
 	
+	void setElements(int offset, ADenseJoclVector src, int srcOffset,int length) {
+		CL.clEnqueueCopyBuffer(JoclContext.commandQueue(),src.getData().mem,this.mem,offset*Sizeof.cl_double,(srcOffset+src.getDataOffset())*Sizeof.cl_double,length*Sizeof.cl_double,0,null,null);
+	}
+	
 	@Override
 	public void copyTo(int srcOffset,double[] dest, int destOffset, int length) {
 		if (length+destOffset>dest.length) throw new IllegalArgumentException("Insufficient elements in dest: "+dest.length);

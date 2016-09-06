@@ -48,6 +48,21 @@ public abstract class ADenseJoclVector extends ASizedVector implements IDense {
 	}
 	
 	@Override
+	public void set(AVector src) {
+		if (src instanceof ADenseJoclVector) {
+			set((ADenseJoclVector)src);
+		} else {
+			checkSameLength(src);
+			setElements(src.getElements(),0);
+		}
+	}
+	
+	public void set(ADenseJoclVector src) {
+		checkSameLength(src);
+		getData().setElements(getDataOffset(), src, 0, length);
+	}
+	
+	@Override
 	public void applyOp(Op op) {
 		if (op instanceof KernelOp) {
 			// fast path for KernelOps

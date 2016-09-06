@@ -63,6 +63,16 @@ public class JoclSubVector extends ADenseJoclVector {
 	}
 	
 	@Override
+	public void scaleAdd(double factor, AVector b, double bfactor, double constant) {
+		checkSameLength(b);
+		if (b instanceof ADenseJoclVector) {
+			data.scaleAdd(offset,factor,(ADenseJoclVector)b,0,bfactor,constant,length);
+		} else {
+			data.scaleAdd(offset,factor,JoclVector.create(b),0,bfactor,constant,length);
+		}	
+	}
+	
+	@Override
 	public void multiply(double factor) {
 		data.scaleAdd(offset,length,factor,0.0);
 	}
