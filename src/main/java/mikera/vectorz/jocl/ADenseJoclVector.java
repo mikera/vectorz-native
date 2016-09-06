@@ -1,5 +1,7 @@
 package mikera.vectorz.jocl;
 
+import java.util.Iterator;
+
 import mikera.arrayz.impl.IDense;
 import mikera.vectorz.AVector;
 import mikera.vectorz.Op;
@@ -28,6 +30,11 @@ public abstract class ADenseJoclVector extends ASizedVector implements IDense {
 		} else {
 			return JoclSubVector.wrap(getData(), getDataOffset(), length);
 		}
+	}
+	
+	@Override
+	public Iterator<Double> iterator() {
+		return toVector().iterator();
 	}
 	
 	@Override
