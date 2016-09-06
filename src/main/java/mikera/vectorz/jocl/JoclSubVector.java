@@ -132,6 +132,12 @@ public class JoclSubVector extends ADenseJoclVector {
 	}
 	
 	@Override
+	public void setElements(int pos,double[] values, int offset, int length) {
+		checkRange(pos,length);
+		data.setElements(this.offset+pos, values, offset, length);
+	}
+	
+	@Override
 	public void getElements(double[] dest, int offset) {
 		data.copyTo(this.offset, dest, offset,length);
 	}

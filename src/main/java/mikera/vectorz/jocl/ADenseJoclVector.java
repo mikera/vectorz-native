@@ -6,6 +6,7 @@ import mikera.arrayz.impl.IDense;
 import mikera.vectorz.AVector;
 import mikera.vectorz.Op;
 import mikera.vectorz.impl.ASizedVector;
+import mikera.vectorz.impl.IndexedElementVisitor;
 import mikera.vectorz.util.DoubleArrays;
 
 /**
@@ -101,6 +102,11 @@ public abstract class ADenseJoclVector extends ASizedVector implements IDense {
 		if (v==this) return true;
 		if (v.length()!=length) return false;
 		return v.equalsArray(getElements(),0);
+	}
+	
+	@Override
+	public double visitNonZero(IndexedElementVisitor elementVisitor) {
+		return toVector().visitNonZero(elementVisitor);
 	}
 	
 	@Override
