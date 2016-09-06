@@ -1,5 +1,6 @@
 package mikera.vectorz.jocl;
 
+import mikera.arrayz.impl.IDense;
 import mikera.vectorz.Op;
 import mikera.vectorz.impl.ASizedVector;
 
@@ -8,7 +9,7 @@ import mikera.vectorz.impl.ASizedVector;
  * @author Mike
  *
  */
-public abstract class ADenseJoclVector extends ASizedVector {
+public abstract class ADenseJoclVector extends ASizedVector implements IDense {
 	private static final long serialVersionUID = -6022914163576354860L;
 
 	protected ADenseJoclVector(int length) {
@@ -25,6 +26,16 @@ public abstract class ADenseJoclVector extends ASizedVector {
 		} else {
 			return JoclSubVector.wrap(getData(), getDataOffset(), length);
 		}
+	}
+	
+	@Override
+	public JoclVector dense() {
+		return clone();
+	}
+	
+	@Override
+	public JoclVector clone() {
+		return JoclVector.create(this);
 	}
 	
 	@Override

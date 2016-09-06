@@ -4,11 +4,12 @@ import mikera.arrayz.INDArray;
 import mikera.matrixx.AMatrix;
 import mikera.matrixx.Matrix;
 import mikera.matrixx.impl.ARectangularMatrix;
+import mikera.matrixx.impl.IFastRows;
 import mikera.vectorz.Op;
 import mikera.vectorz.Tools;
 
 @SuppressWarnings("serial")
-public class JoclMatrix extends ARectangularMatrix {
+public class JoclMatrix extends ARectangularMatrix implements IFastRows {
 	private final JoclVector data;
 	
 	protected JoclMatrix(int rows, int cols, JoclVector src) {
