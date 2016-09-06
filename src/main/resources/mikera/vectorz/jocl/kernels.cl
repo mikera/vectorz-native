@@ -42,6 +42,13 @@ scaleAdd_scalar(__global double *a, const int aoffset, const double factor, cons
 }
 
 __kernel void 
+scaleAdd_vector(__global double *a, const int aoffset, const double afactor, __global double *b, const int boffset, const double bfactor, const double c)
+{
+	int i = get_global_id(0);
+	a[i+aoffset] = (a[i+aoffset] * afactor) + (b[i+boffset] * bfactor) + c;
+}
+
+__kernel void 
 addAt(__global double *a, const int offset, const double v)
 {
 	a[offset] += v;

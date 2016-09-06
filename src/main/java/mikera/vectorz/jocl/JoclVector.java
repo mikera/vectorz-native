@@ -327,6 +327,32 @@ public class JoclVector extends ADenseJoclVector {
 	public Pointer pointer() {
 		return Pointer.to(mem);
 	}
+	
+	@Override
+	public void scaleAdd(double factor, AVector b, double bfactor, double constant) {
+		if (b instanceof ADenseJoclVector) {
+			scaleAdd(0,factor,(ADenseJoclVector)b,0,bfactor,constant,length);
+		} else {
+			scaleAdd(0,factor,JoclVector.create(b),0,bfactor,constant,length);
+		}	
+	}
+	
+	double scaleAdd(int thisOffset,double factor, ADenseJoclVector v, int vOffset, double vFactor, double constant, int length) {
+		Kernel kernel=Kernels.getKernel("scaleAdd_vector");
+		double[] res=new double[1];
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer()); // this
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_int, Pointer.to(new int[]{thisOffset})); // this offset
+		clSetKernelArg(kernel.kernel, 2, Sizeof.cl_double, Pointer.to(new double[]{factor})); // this factor
+		clSetKernelArg(kernel.kernel, 3, Sizeof.cl_mem, v.getData().pointer()); // source
+		clSetKernelArg(kernel.kernel, 4, Sizeof.cl_int, Pointer.to(new int[]{vOffset+v.getDataOffset()})); // voffset
+		clSetKernelArg(kernel.kernel, 5, Sizeof.cl_double, Pointer.to(new double[]{vFactor})); // this factor
+		clSetKernelArg(kernel.kernel, 6, Sizeof.cl_double, Pointer.to(new double[]{constant})); // this factor
+		long global_work_size[] = new long[]{length};
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);	
+		
+		return res[0];
+	}
 
 	@Override
 	public double dotProduct(AVector v) {
