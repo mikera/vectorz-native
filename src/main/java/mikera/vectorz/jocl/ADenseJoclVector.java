@@ -1,7 +1,5 @@
 package mikera.vectorz.jocl;
 
-import org.jocl.Pointer;
-
 import mikera.vectorz.Op;
 import mikera.vectorz.impl.ASizedVector;
 

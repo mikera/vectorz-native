@@ -1,6 +1,5 @@
 package mikera.vectorz.jocl;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;

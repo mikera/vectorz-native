@@ -1,11 +1,15 @@
 package mikera.vectorz.jocl;
 
-import static org.jocl.CL.*;
+import static org.jocl.CL.CL_MEM_READ_WRITE;
+import static org.jocl.CL.CL_TRUE;
+import static org.jocl.CL.clCreateBuffer;
+import static org.jocl.CL.clEnqueueNDRangeKernel;
+import static org.jocl.CL.clReleaseMemObject;
+import static org.jocl.CL.clSetKernelArg;
 
 import org.jocl.CL;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
-import org.jocl.cl_buffer_region;
 import org.jocl.cl_mem;
 
 import mikera.vectorz.AScalar;
