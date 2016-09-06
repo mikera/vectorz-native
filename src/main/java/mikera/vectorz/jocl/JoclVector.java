@@ -204,6 +204,7 @@ public class JoclVector extends ADenseJoclVector {
 		checkRange(start,length);
 		Kernel kernel=op.getKernel();
 		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer()); // target
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_int, Pointer.to(new int[]{start})); // offset
 		long global_work_size[] = new long[]{length};
 		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
 				global_work_size, null, 0, null, null);	

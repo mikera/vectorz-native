@@ -17,6 +17,11 @@ public class KernelOps {
 	private static final Hashtable<Op,KernelOp> opMap=new Hashtable<>();
 	
     public static KernelOp ABS = registerKernelOp("op_abs",Ops.ABS,true);
+    public static KernelOp LOG = registerKernelOp("op_log",Ops.LOG,true);
+    public static KernelOp EXP = registerKernelOp("op_exp",Ops.EXP,true);
+    public static KernelOp SIN = registerKernelOp("op_sin",Ops.SIN,true);
+    public static KernelOp COS = registerKernelOp("op_cos",Ops.COS,true);
+    public static KernelOp SQRT = registerKernelOp("op_sqrt",Ops.SQRT,true);
 	
 	public static KernelOp findSubstitute(Op op) {
 		KernelOp kop=opMap.get(op);
