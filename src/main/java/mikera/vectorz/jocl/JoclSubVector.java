@@ -50,6 +50,42 @@ public class JoclSubVector extends ADenseJoclVector {
 		checkSameLength(a);
 		data.add(offset,a,0,length);
 	}
+	
+	@Override
+	public void multiply(AVector a) {
+		checkSameLength(a);
+		data.multiply(offset,JoclUtils.coerce(a),0,length);
+	}
+	
+	@Override
+	public void scaleAdd(double factor, double constant) {
+		data.scaleAdd(offset,length,factor,constant);
+	}
+	
+	@Override
+	public void multiply(double factor) {
+		data.scaleAdd(offset,length,factor,0.0);
+	}
+	
+	@Override
+	public void negate() {
+		data.scaleAdd(offset,length,-1.0,0.0);
+	}
+	
+	@Override
+	public void add(double value) {
+		data.scaleAdd(offset,length,1.0,value);
+	}
+	
+	@Override
+	public void sub(double value) {
+		data.scaleAdd(offset,length,1.0,-value);
+	}
+	
+	@Override
+	public void addAt(int i, double v) {
+		data.addAt(i+offset, v);
+	}
 
 	@Override
 	public double get(int i) {

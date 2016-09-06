@@ -1,8 +1,10 @@
 package mikera.vectorz.jocl;
 
 import mikera.arrayz.impl.IDense;
+import mikera.vectorz.AVector;
 import mikera.vectorz.Op;
 import mikera.vectorz.impl.ASizedVector;
+import mikera.vectorz.util.DoubleArrays;
 
 /**
  * Abstract base class for dense Jocl vectors
@@ -61,4 +63,16 @@ public abstract class ADenseJoclVector extends ASizedVector implements IDense {
 	}
 	
 	protected abstract void applyOp(KernelOp op, int start, int length);
+	
+	@Override
+	public boolean equals(AVector v) {
+		if (v==this) return true;
+		if (v.length()!=length) return false;
+		return v.equalsArray(getElements(),0);
+	}
+	
+	@Override
+	public boolean equalsArray(double[] data, int offset) {
+		return DoubleArrays.equals(data, offset, getElements(), 0, length);
+	}
 }

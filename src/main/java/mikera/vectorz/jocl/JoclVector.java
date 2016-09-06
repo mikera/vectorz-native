@@ -111,6 +111,11 @@ public class JoclVector extends ADenseJoclVector {
 	}
 	
 	@Override
+	public void getElements(double[] dest, int offset) {
+		copyTo(0,dest,offset,length);
+	}
+	
+	@Override
 	public boolean isView() {
 		return false;
 	}
@@ -172,6 +177,38 @@ public class JoclVector extends ADenseJoclVector {
 	}
 	
 	@Override
+	public void divide(AVector a) {
+		checkSameLength(a);
+		if (a instanceof ADenseJoclVector) {
+			divide(0,(ADenseJoclVector) a,0,length);
+		} else {
+			divide(0,JoclVector.create(a),0,length);
+		}	
+	}
+	
+	public void divide(int offset, ADenseJoclVector src,int srcOffset, int length) {
+		src.checkRange(srcOffset,length);
+		Kernel kernel=Kernels.getKernel("div");
+		applyKernel(kernel,offset,src,srcOffset,length);
+	}
+	
+	@Override
+	public void sub(AVector a) {
+		checkSameLength(a);
+		if (a instanceof ADenseJoclVector) {
+			sub(0,(ADenseJoclVector) a,0,length);
+		} else {
+			sub(0,JoclVector.create(a),0,length);
+		}	
+	}
+	
+	public void sub(int offset, ADenseJoclVector src,int srcOffset, int length) {
+		src.checkRange(srcOffset,length);
+		Kernel kernel=Kernels.getKernel("sub");
+		applyKernel(kernel,offset,src,srcOffset,length);
+	}
+	
+	@Override
 	public void multiply(AVector a) {
 		checkSameLength(a);
 		if (a instanceof ADenseJoclVector) {
@@ -182,9 +219,46 @@ public class JoclVector extends ADenseJoclVector {
 	}
 	
 	public void multiply(int offset, ADenseJoclVector src,int srcOffset, int length) {
-		checkRange(srcOffset,length);
+		src.checkRange(srcOffset,length);
 		Kernel kernel=Kernels.getKernel("mul");
 		applyKernel(kernel,offset,src,srcOffset,length);
+	}
+	
+	@Override
+	public void scaleAdd(double factor, double constant) {
+		scaleAdd(0,length,factor,constant);
+	}
+	
+	@Override
+	public void multiply(double factor) {
+		scaleAdd(0,length,factor,0.0);
+	}
+	
+	@Override
+	public void negate() {
+		scaleAdd(0,length,-1.0,0.0);
+	}
+	
+	@Override
+	public void add(double value) {
+		scaleAdd(0,length,1.0,value);
+	}
+	
+	@Override
+	public void sub(double value) {
+		scaleAdd(0,length,1.0,-value);
+	}
+	
+	void scaleAdd(int offset,int length, double factor, double constant) {
+		checkRange(offset,length);
+		Kernel kernel=Kernels.getKernel("scaleAdd_scalar");
+		applyKernel(kernel,offset,length,factor,constant);
+	}
+	
+	@Override
+	public void addAt(int i, double v) {
+		Kernel kernel=Kernels.getKernel("addAt");
+		applyKernel(kernel,i,v);
 	}
 	
 	private void applyKernel(Kernel kernel,int offset, ADenseJoclVector src,int srcOffset, int length) {
@@ -194,6 +268,29 @@ public class JoclVector extends ADenseJoclVector {
 		clSetKernelArg(kernel.kernel, 3, Sizeof.cl_int, Pointer.to(new int[]{srcOffset+src.getDataOffset()})); // source
 		
 		long global_work_size[] = new long[]{length};
+        
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);		
+	}
+	
+	private void applyKernel(Kernel kernel,int offset, int length, double a, double b) {
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer()); // target
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_int, Pointer.to(new int[]{offset})); // offset
+		clSetKernelArg(kernel.kernel, 2, Sizeof.cl_double, Pointer.to(new double[]{a})); 
+		clSetKernelArg(kernel.kernel, 3, Sizeof.cl_double, Pointer.to(new double[]{b}));
+		
+		long global_work_size[] = new long[]{length};
+        
+		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
+				global_work_size, null, 0, null, null);		
+	}
+	
+	private void applyKernel(Kernel kernel,int offset, double a) {
+		clSetKernelArg(kernel.kernel, 0, Sizeof.cl_mem, pointer()); // target
+		clSetKernelArg(kernel.kernel, 1, Sizeof.cl_int, Pointer.to(new int[]{offset})); // offset
+		clSetKernelArg(kernel.kernel, 2, Sizeof.cl_double, Pointer.to(new double[]{a})); 
+		
+		long global_work_size[] = new long[]{1};
         
 		clEnqueueNDRangeKernel(JoclContext.commandQueue(), kernel.kernel, 1, null,
 				global_work_size, null, 0, null, null);		

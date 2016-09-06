@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 import org.jocl.Pointer;
 
+import mikera.vectorz.AVector;
+
 /**
  * Utility function class for vectorz-opencl
  * @author Mike
@@ -33,6 +35,11 @@ public class JoclUtils {
 	public static Pointer intPointer(int a) {
 		IntBuffer buffer=IntBuffer.wrap(new int[]{a});
 		return Pointer.to(buffer);
+	}
+
+	public static ADenseJoclVector coerce(AVector a) {
+		if (a instanceof ADenseJoclVector) return (ADenseJoclVector) a;
+		return JoclVector.create(a);
 	}
 
 }
