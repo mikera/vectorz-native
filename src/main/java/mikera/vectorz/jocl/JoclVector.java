@@ -46,8 +46,7 @@ public class JoclVector extends ADenseJoclVector {
 	}
 	
 	private JoclVector(double[] data, int offset, int length) {
-		super(length);
-		mem=clCreateBuffer(JoclContext.getInstance().context,CL_MEM_READ_WRITE,length*Sizeof.cl_double, null, null);
+		this(length);
 		setElements(data,offset);
 	}
 
